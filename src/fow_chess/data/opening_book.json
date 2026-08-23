@@ -1,0 +1,159 @@
+{
+  "version": 1,
+  "description": "Observation-keyed opening book (FOW_OPENING_BOOK). Fires only on these exact fog-of-war view fingerprints; inert elsewhere. White: force 2.Nc3 after any first move (king-trap block) + 3.Nf3 after 1.e4. See src/fow_chess/opening_book.py.",
+  "entries": [
+    {
+      "fingerprint": "w|0:R,2:B,3:Q,4:K,5:B,6:N,7:R,8:P,9:P,10:P,11:P,13:P,14:P,15:P,18:N,28:P|1765230510079",
+      "action": "force",
+      "move": "g1f3",
+      "note": "After 1.e4 ? 2.Nc3 + an unseen reply: Nf3 supports a later d4 (cxd4 Nxd4, not the queen-hanging Qxd4); safe because Nc3 defends e4. Fixes g4.",
+      "from_games": [
+        "64d14489"
+      ]
+    },
+    {
+      "fingerprint": "b|15:P,43:b,48:p,49:p,50:p,53:p,54:p,55:p,56:r,57:n,58:b,59:q,60:k,62:n,63:r|18446744038859177984",
+      "action": "block",
+      "move": "d8h4",
+      "note": "From's-gambit ...Qh4 hangs to an Nf3 Black can't see (Nxh4). Drop it; take the engine's next-best. Fixes g1.",
+      "from_games": [
+        "747112db"
+      ]
+    },
+    {
+      "fingerprint": "b|30:P,34:p,42:n,43:P,48:p,49:p,53:p,54:p,55:p,56:r,58:b,59:q,60:k,61:b,62:n,63:r|18446744038510952448",
+      "action": "block",
+      "move": "d8h4",
+      "note": "...Qh4 hangs to an Nf3 Black can't see (Nxh4). Drop it; take the engine's next-best (local replay: f8d6). Fixes 5a039274.",
+      "from_games": [
+        "5a039274"
+      ]
+    },
+    {
+      "fingerprint": "b|30:P,34:p,35:p,36:P,42:n,48:p,49:p,53:p,54:p,55:p,56:r,58:b,59:q,60:k,61:b,62:n,63:r|18446744072870690816",
+      "action": "block",
+      "move": "d8h4",
+      "note": "...Qh4 hangs to an Nf3 Black can't see (Nxh4). Drop it; take the engine's next-best (local replay: c6e5). Fixes bd621af5.",
+      "from_games": [
+        "bd621af5"
+      ]
+    },
+    {
+      "fingerprint": "b|15:P,42:n,43:b,48:p,49:p,50:p,53:p,54:p,55:p,56:r,58:b,59:q,60:k,62:n,63:r|18446744038993395712",
+      "action": "block",
+      "move": "d8h4",
+      "note": "...Qh4 hangs to an Nf3 Black can't see (Nxh4). Drop it; take the engine's next-best. Fixes 1f7e25ee.",
+      "from_games": [
+        "1f7e25ee"
+      ]
+    },
+    {
+      "fingerprint": "b|15:P,43:b,48:p,49:p,50:p,53:p,54:p,55:p,56:r,57:n,58:b,59:q,60:k,62:n,63:r|18446744038859177984",
+      "action": "block",
+      "move": "d8g5",
+      "note": "...Qg5 is the same opening queen-exposure family as ...Qh4: it hangs to an unseen Nf3 knight. History-scoped mined block; drop it and take next-best.",
+      "from_games": [
+        "747112db",
+        "oqe:qg5-sibling"
+      ],
+      "history_fingerprint": "obsh:v1:14b0d3401f8c268e3e6ced91016c024141b8b5e0029d1e6c96222329e9ed9b3a"
+    },
+    {
+      "fingerprint": "b|30:P,34:p,42:n,43:P,48:p,49:p,53:p,54:p,55:p,56:r,58:b,59:q,60:k,61:b,62:n,63:r|18446744038510952448",
+      "action": "block",
+      "move": "d8g5",
+      "note": "...Qg5 is the same opening queen-exposure family as ...Qh4: it hangs to an unseen Nf3 knight. History-scoped mined block; drop it and take next-best.",
+      "from_games": [
+        "5a039274",
+        "oqe:qg5-sibling"
+      ],
+      "history_fingerprint": "obsh:v1:f9fef9df55eb47e0d0790f80d220ff40c57171447fcaf66d7de2ec16397fc50a"
+    },
+    {
+      "fingerprint": "b|30:P,34:p,35:p,36:P,42:n,48:p,49:p,53:p,54:p,55:p,56:r,58:b,59:q,60:k,61:b,62:n,63:r|18446744072870690816",
+      "action": "block",
+      "move": "d8g5",
+      "note": "...Qg5 is the same opening queen-exposure family as ...Qh4: it hangs to an unseen Nf3 knight. History-scoped mined block; drop it and take next-best.",
+      "from_games": [
+        "bd621af5",
+        "oqe:qg5-sibling"
+      ],
+      "history_fingerprint": "obsh:v1:fff90c08d1af521235896b158f9a5e8080efe751ef716e0b6388081e8fb55aca"
+    },
+    {
+      "fingerprint": "b|15:P,42:n,43:b,48:p,49:p,50:p,53:p,54:p,55:p,56:r,58:b,59:q,60:k,62:n,63:r|18446744038993395712",
+      "action": "block",
+      "move": "d8g5",
+      "note": "...Qg5 is the same opening queen-exposure family as ...Qh4: it hangs to an unseen Nf3 knight. History-scoped mined block; drop it and take next-best.",
+      "from_games": [
+        "1f7e25ee",
+        "oqe:qg5-sibling"
+      ],
+      "history_fingerprint": "obsh:v1:1de5e563ecb65ae80ea3e5ff56663a496bb659e7a728d81cbfa91f4ee1320bc5"
+    },
+    {
+      "fingerprint": "b|27:p,48:p,49:p,51:p,53:p,54:p,55:p,56:r,57:n,58:b,59:q,60:k,61:b,62:n,63:r|18446726410824908800",
+      "action": "block",
+      "move": "d8a5",
+      "note": "...Qa5 hangs to a hidden Qxa5 in the opening queen-exposure scan. History-scoped mined block; drop it and take next-best.",
+      "from_games": [
+        "bottomk-probe-100",
+        "oqe:played"
+      ],
+      "history_fingerprint": "obsh:v1:0d2767a83fc3fd10bc7da04cd5c25a8f328ec007fc9cc1305f4a1b031012812e"
+    },
+    {
+      "fingerprint": "b|34:p,35:P,42:n,48:p,49:p,52:p,53:p,54:p,55:p,56:r,58:b,59:q,60:k,61:b,62:n,63:r|18446744070731595776",
+      "action": "block",
+      "move": "d8d5",
+      "note": "...Qxd5 hangs to a hidden Nxd5 in the opening queen-exposure scan. History-scoped mined block; drop it and take next-best.",
+      "from_games": [
+        "bottomk-probe-100",
+        "oqe:played"
+      ],
+      "history_fingerprint": "obsh:v1:7116853335a74c5e85154d0ffd6ddfc929afccc66cabbb547ab05fb212f01526"
+    },
+    {
+      "fingerprint": "b|35:P,42:n,44:p,48:p,49:p,50:p,53:p,54:p,55:p,56:r,58:b,59:q,60:k,61:b,62:n,63:r|18446744071729905664",
+      "action": "block",
+      "move": "d8d5",
+      "note": "...Qxd5 hangs to hidden Nxd5/Qxd5 refutations in the opening queen-exposure scan. History-scoped mined block; drop it and take next-best.",
+      "from_games": [
+        "bottomk-probe-100",
+        "oqe:played"
+      ],
+      "history_fingerprint": "obsh:v1:30457f21aa083d2a6a1f59e6b1147814ed30e6c5ef55b25e833ebfd44d5f14b4"
+    },
+    {
+      "fingerprint": "b|28:P,42:n,43:P,44:p,45:n,48:p,49:p,53:p,54:p,55:p,56:r,58:b,59:q,60:k,61:b,63:r|18446743916305711104",
+      "action": "block",
+      "move": "d8d6",
+      "note": "...Qxd6 hangs to a hidden Qxd6 in the opening queen-exposure scan. History-scoped mined block; drop it and take next-best.",
+      "from_games": [
+        "bottomk-probe-100",
+        "oqe:played"
+      ],
+      "history_fingerprint": "obsh:v1:8648c72ae4e0a3bd538c6e4fca3f18ad7e9027d2608896d87786c6bb93e42016"
+    },
+    {
+      "fingerprint": "b|34:B,36:P,48:p,49:p,50:p,51:p,52:q,53:p,54:p,55:p,56:r,57:n,58:b,60:k,61:b,63:r|18446744037202329600",
+      "action": "block",
+      "move": "e7c5",
+      "note": "...Qxc5 hangs to a hidden Qxc5 in the opening queen-exposure scan. History-scoped mined block; drop it and take next-best.",
+      "from_games": [
+        "bottomk-probe-100",
+        "oqe:played"
+      ],
+      "history_fingerprint": "obsh:v1:fa6c33077e8fc2d893ac0df65a173918bcf4724b94c1ba3f7b0d4b85a8e6deb5"
+    },
+    {
+      "fingerprint": "b|28:P,35:p,48:p,49:p,50:p,52:p,53:p,54:p,55:p,56:r,57:n,58:b,59:q,60:k,61:b,62:n,63:r|18446744070899367936",
+      "action": "force",
+      "move": "d5e4",
+      "note": "After 1.Nf3 d5 2.e4: take the central pawn (dxe4). The engine values it #1 but ~6% of time-bounded commits slip to the weaker c6/Nf6; force the value-best move. Sound (even trade at worst). From deep-dive 9ed7d9a5.",
+      "from_games": [
+        "9ed7d9a5"
+      ]
+    }
+  ]
+}

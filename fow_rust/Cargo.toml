@@ -1,0 +1,31 @@
+[package]
+name = "fow_rust"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "fow_rust"
+# rlib so `cargo test` can link the crate into test binaries (and, later,
+# so a core crate can be split out for wasm).
+crate-type = ["cdylib", "rlib"]
+
+[features]
+# Variant game modules ship in a later release; this build is chess-only.
+default = []
+mini = []
+xiangqi = []
+
+[dependencies]
+# NOTE: pyo3's `extension-module` feature is deliberately NOT set here — it
+# strips libpython linkage, which breaks `cargo test` binaries. Maturin adds
+# it at wheel/develop build time via [tool.maturin] features in pyproject.toml.
+pyo3 = { version = "0.29" }
+shakmaty = "0.27"
+rayon = "1.10"
+rustc-hash = "2"
+dashmap = "6"
+mimalloc = { version = "0.1", default-features = false }
+
+[profile.release]
+lto = true
+codegen-units = 1

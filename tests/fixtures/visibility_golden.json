@@ -1,0 +1,1835 @@
+{
+  "schema": "fow-visibility-golden/1",
+  "note": "Engine (visibility.py) visible-sets per (FEN, perspective), in wire format (visibility_mask hex bitboard a1=bit0; visible_pieces [squareIndex, {type,color}]). The Mistboard build.test.ts asserts the server redaction matches these. Regenerate via scripts/emit_visibility_golden.py when the fog rule changes.",
+  "cases": [
+    {
+      "id": "startpos-white",
+      "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "perspective": "white",
+      "note": "standard start \u2014 pawns + back rank visibility",
+      "board": {
+        "a1": {
+          "color": "white",
+          "role": "rook"
+        },
+        "b1": {
+          "color": "white",
+          "role": "knight"
+        },
+        "c1": {
+          "color": "white",
+          "role": "bishop"
+        },
+        "d1": {
+          "color": "white",
+          "role": "queen"
+        },
+        "e1": {
+          "color": "white",
+          "role": "king"
+        },
+        "f1": {
+          "color": "white",
+          "role": "bishop"
+        },
+        "g1": {
+          "color": "white",
+          "role": "knight"
+        },
+        "h1": {
+          "color": "white",
+          "role": "rook"
+        },
+        "a2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "b2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "c2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "d2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "e2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "f2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "g2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "h2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "a7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "b7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "c7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "d7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "e7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "f7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "g7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "h7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "a8": {
+          "color": "black",
+          "role": "rook"
+        },
+        "b8": {
+          "color": "black",
+          "role": "knight"
+        },
+        "c8": {
+          "color": "black",
+          "role": "bishop"
+        },
+        "d8": {
+          "color": "black",
+          "role": "queen"
+        },
+        "e8": {
+          "color": "black",
+          "role": "king"
+        },
+        "f8": {
+          "color": "black",
+          "role": "bishop"
+        },
+        "g8": {
+          "color": "black",
+          "role": "knight"
+        },
+        "h8": {
+          "color": "black",
+          "role": "rook"
+        }
+      },
+      "enPassantSquare": null,
+      "visibility_mask": "0x00000000ffffffff",
+      "visible_pieces": [
+        [
+          0,
+          {
+            "type": "R",
+            "color": "white"
+          }
+        ],
+        [
+          1,
+          {
+            "type": "N",
+            "color": "white"
+          }
+        ],
+        [
+          2,
+          {
+            "type": "B",
+            "color": "white"
+          }
+        ],
+        [
+          3,
+          {
+            "type": "Q",
+            "color": "white"
+          }
+        ],
+        [
+          4,
+          {
+            "type": "K",
+            "color": "white"
+          }
+        ],
+        [
+          5,
+          {
+            "type": "B",
+            "color": "white"
+          }
+        ],
+        [
+          6,
+          {
+            "type": "N",
+            "color": "white"
+          }
+        ],
+        [
+          7,
+          {
+            "type": "R",
+            "color": "white"
+          }
+        ],
+        [
+          8,
+          {
+            "type": "P",
+            "color": "white"
+          }
+        ],
+        [
+          9,
+          {
+            "type": "P",
+            "color": "white"
+          }
+        ],
+        [
+          10,
+          {
+            "type": "P",
+            "color": "white"
+          }
+        ],
+        [
+          11,
+          {
+            "type": "P",
+            "color": "white"
+          }
+        ],
+        [
+          12,
+          {
+            "type": "P",
+            "color": "white"
+          }
+        ],
+        [
+          13,
+          {
+            "type": "P",
+            "color": "white"
+          }
+        ],
+        [
+          14,
+          {
+            "type": "P",
+            "color": "white"
+          }
+        ],
+        [
+          15,
+          {
+            "type": "P",
+            "color": "white"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "startpos-black",
+      "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "perspective": "black",
+      "note": "standard start \u2014 pawns + back rank visibility",
+      "board": {
+        "a1": {
+          "color": "white",
+          "role": "rook"
+        },
+        "b1": {
+          "color": "white",
+          "role": "knight"
+        },
+        "c1": {
+          "color": "white",
+          "role": "bishop"
+        },
+        "d1": {
+          "color": "white",
+          "role": "queen"
+        },
+        "e1": {
+          "color": "white",
+          "role": "king"
+        },
+        "f1": {
+          "color": "white",
+          "role": "bishop"
+        },
+        "g1": {
+          "color": "white",
+          "role": "knight"
+        },
+        "h1": {
+          "color": "white",
+          "role": "rook"
+        },
+        "a2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "b2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "c2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "d2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "e2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "f2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "g2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "h2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "a7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "b7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "c7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "d7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "e7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "f7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "g7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "h7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "a8": {
+          "color": "black",
+          "role": "rook"
+        },
+        "b8": {
+          "color": "black",
+          "role": "knight"
+        },
+        "c8": {
+          "color": "black",
+          "role": "bishop"
+        },
+        "d8": {
+          "color": "black",
+          "role": "queen"
+        },
+        "e8": {
+          "color": "black",
+          "role": "king"
+        },
+        "f8": {
+          "color": "black",
+          "role": "bishop"
+        },
+        "g8": {
+          "color": "black",
+          "role": "knight"
+        },
+        "h8": {
+          "color": "black",
+          "role": "rook"
+        }
+      },
+      "enPassantSquare": null,
+      "visibility_mask": "0xffffffff00000000",
+      "visible_pieces": [
+        [
+          48,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ],
+        [
+          49,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ],
+        [
+          50,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ],
+        [
+          51,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ],
+        [
+          52,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ],
+        [
+          53,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ],
+        [
+          54,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ],
+        [
+          55,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ],
+        [
+          56,
+          {
+            "type": "R",
+            "color": "black"
+          }
+        ],
+        [
+          57,
+          {
+            "type": "N",
+            "color": "black"
+          }
+        ],
+        [
+          58,
+          {
+            "type": "B",
+            "color": "black"
+          }
+        ],
+        [
+          59,
+          {
+            "type": "Q",
+            "color": "black"
+          }
+        ],
+        [
+          60,
+          {
+            "type": "K",
+            "color": "black"
+          }
+        ],
+        [
+          61,
+          {
+            "type": "B",
+            "color": "black"
+          }
+        ],
+        [
+          62,
+          {
+            "type": "N",
+            "color": "black"
+          }
+        ],
+        [
+          63,
+          {
+            "type": "R",
+            "color": "black"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "italian-developed-white",
+      "fen": "r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2N2N2/PPPP1PPP/R1BQK2R w KQkq - 0 1",
+      "perspective": "white",
+      "note": "developed minor pieces + castling rights \u2014 mixed slider/knight sight",
+      "board": {
+        "a1": {
+          "color": "white",
+          "role": "rook"
+        },
+        "c1": {
+          "color": "white",
+          "role": "bishop"
+        },
+        "d1": {
+          "color": "white",
+          "role": "queen"
+        },
+        "e1": {
+          "color": "white",
+          "role": "king"
+        },
+        "h1": {
+          "color": "white",
+          "role": "rook"
+        },
+        "a2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "b2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "c2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "d2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "f2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "g2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "h2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "c3": {
+          "color": "white",
+          "role": "knight"
+        },
+        "f3": {
+          "color": "white",
+          "role": "knight"
+        },
+        "c4": {
+          "color": "white",
+          "role": "bishop"
+        },
+        "e4": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "c5": {
+          "color": "black",
+          "role": "bishop"
+        },
+        "e5": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "c6": {
+          "color": "black",
+          "role": "knight"
+        },
+        "f6": {
+          "color": "black",
+          "role": "knight"
+        },
+        "a7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "b7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "c7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "d7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "f7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "g7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "h7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "a8": {
+          "color": "black",
+          "role": "rook"
+        },
+        "c8": {
+          "color": "black",
+          "role": "bishop"
+        },
+        "d8": {
+          "color": "black",
+          "role": "queen"
+        },
+        "e8": {
+          "color": "black",
+          "role": "king"
+        },
+        "h8": {
+          "color": "black",
+          "role": "rook"
+        }
+      },
+      "enPassantSquare": null,
+      "visibility_mask": "0x0020115adfefffff",
+      "visible_pieces": [
+        [
+          0,
+          {
+            "type": "R",
+            "color": "white"
+          }
+        ],
+        [
+          2,
+          {
+            "type": "B",
+            "color": "white"
+          }
+        ],
+        [
+          3,
+          {
+            "type": "Q",
+            "color": "white"
+          }
+        ],
+        [
+          4,
+          {
+            "type": "K",
+            "color": "white"
+          }
+        ],
+        [
+          7,
+          {
+            "type": "R",
+            "color": "white"
+          }
+        ],
+        [
+          8,
+          {
+            "type": "P",
+            "color": "white"
+          }
+        ],
+        [
+          9,
+          {
+            "type": "P",
+            "color": "white"
+          }
+        ],
+        [
+          10,
+          {
+            "type": "P",
+            "color": "white"
+          }
+        ],
+        [
+          11,
+          {
+            "type": "P",
+            "color": "white"
+          }
+        ],
+        [
+          13,
+          {
+            "type": "P",
+            "color": "white"
+          }
+        ],
+        [
+          14,
+          {
+            "type": "P",
+            "color": "white"
+          }
+        ],
+        [
+          15,
+          {
+            "type": "P",
+            "color": "white"
+          }
+        ],
+        [
+          18,
+          {
+            "type": "N",
+            "color": "white"
+          }
+        ],
+        [
+          21,
+          {
+            "type": "N",
+            "color": "white"
+          }
+        ],
+        [
+          26,
+          {
+            "type": "B",
+            "color": "white"
+          }
+        ],
+        [
+          28,
+          {
+            "type": "P",
+            "color": "white"
+          }
+        ],
+        [
+          36,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ],
+        [
+          53,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "italian-developed-black",
+      "fen": "r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2N2N2/PPPP1PPP/R1BQK2R w KQkq - 0 1",
+      "perspective": "black",
+      "note": "developed minor pieces + castling rights \u2014 mixed slider/knight sight",
+      "board": {
+        "a1": {
+          "color": "white",
+          "role": "rook"
+        },
+        "c1": {
+          "color": "white",
+          "role": "bishop"
+        },
+        "d1": {
+          "color": "white",
+          "role": "queen"
+        },
+        "e1": {
+          "color": "white",
+          "role": "king"
+        },
+        "h1": {
+          "color": "white",
+          "role": "rook"
+        },
+        "a2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "b2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "c2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "d2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "f2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "g2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "h2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "c3": {
+          "color": "white",
+          "role": "knight"
+        },
+        "f3": {
+          "color": "white",
+          "role": "knight"
+        },
+        "c4": {
+          "color": "white",
+          "role": "bishop"
+        },
+        "e4": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "c5": {
+          "color": "black",
+          "role": "bishop"
+        },
+        "e5": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "c6": {
+          "color": "black",
+          "role": "knight"
+        },
+        "f6": {
+          "color": "black",
+          "role": "knight"
+        },
+        "a7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "b7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "c7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "d7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "f7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "g7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "h7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "a8": {
+          "color": "black",
+          "role": "rook"
+        },
+        "c8": {
+          "color": "black",
+          "role": "bishop"
+        },
+        "d8": {
+          "color": "black",
+          "role": "queen"
+        },
+        "e8": {
+          "color": "black",
+          "role": "king"
+        },
+        "h8": {
+          "color": "black",
+          "role": "rook"
+        }
+      },
+      "enPassantSquare": null,
+      "visibility_mask": "0xffffefdf5a112000",
+      "visible_pieces": [
+        [
+          13,
+          {
+            "type": "P",
+            "color": "white"
+          }
+        ],
+        [
+          28,
+          {
+            "type": "P",
+            "color": "white"
+          }
+        ],
+        [
+          34,
+          {
+            "type": "B",
+            "color": "black"
+          }
+        ],
+        [
+          36,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ],
+        [
+          42,
+          {
+            "type": "N",
+            "color": "black"
+          }
+        ],
+        [
+          45,
+          {
+            "type": "N",
+            "color": "black"
+          }
+        ],
+        [
+          48,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ],
+        [
+          49,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ],
+        [
+          50,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ],
+        [
+          51,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ],
+        [
+          53,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ],
+        [
+          54,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ],
+        [
+          55,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ],
+        [
+          56,
+          {
+            "type": "R",
+            "color": "black"
+          }
+        ],
+        [
+          58,
+          {
+            "type": "B",
+            "color": "black"
+          }
+        ],
+        [
+          59,
+          {
+            "type": "Q",
+            "color": "black"
+          }
+        ],
+        [
+          60,
+          {
+            "type": "K",
+            "color": "black"
+          }
+        ],
+        [
+          63,
+          {
+            "type": "R",
+            "color": "black"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "open-rooks-white",
+      "fen": "4k3/8/8/8/8/8/R6R/4K3 w - - 0 1",
+      "perspective": "white",
+      "note": "rooks on open ranks/files \u2014 long slider visibility",
+      "board": {
+        "e1": {
+          "color": "white",
+          "role": "king"
+        },
+        "a2": {
+          "color": "white",
+          "role": "rook"
+        },
+        "h2": {
+          "color": "white",
+          "role": "rook"
+        },
+        "e8": {
+          "color": "black",
+          "role": "king"
+        }
+      },
+      "enPassantSquare": null,
+      "visibility_mask": "0x818181818181ffb9",
+      "visible_pieces": [
+        [
+          4,
+          {
+            "type": "K",
+            "color": "white"
+          }
+        ],
+        [
+          8,
+          {
+            "type": "R",
+            "color": "white"
+          }
+        ],
+        [
+          15,
+          {
+            "type": "R",
+            "color": "white"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "open-rooks-black",
+      "fen": "4k3/8/8/8/8/8/R6R/4K3 w - - 0 1",
+      "perspective": "black",
+      "note": "rooks on open ranks/files \u2014 long slider visibility",
+      "board": {
+        "e1": {
+          "color": "white",
+          "role": "king"
+        },
+        "a2": {
+          "color": "white",
+          "role": "rook"
+        },
+        "h2": {
+          "color": "white",
+          "role": "rook"
+        },
+        "e8": {
+          "color": "black",
+          "role": "king"
+        }
+      },
+      "enPassantSquare": null,
+      "visibility_mask": "0x3838000000000000",
+      "visible_pieces": [
+        [
+          60,
+          {
+            "type": "K",
+            "color": "black"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "knights-white",
+      "fen": "8/8/3k4/8/4N3/8/3K4/8 w - - 0 1",
+      "perspective": "white",
+      "note": "knight L-shaped visibility, sparse",
+      "board": {
+        "d2": {
+          "color": "white",
+          "role": "king"
+        },
+        "e4": {
+          "color": "white",
+          "role": "knight"
+        },
+        "d6": {
+          "color": "black",
+          "role": "king"
+        }
+      },
+      "enPassantSquare": null,
+      "visibility_mask": "0x00002844105c3c1c",
+      "visible_pieces": [
+        [
+          11,
+          {
+            "type": "K",
+            "color": "white"
+          }
+        ],
+        [
+          28,
+          {
+            "type": "N",
+            "color": "white"
+          }
+        ],
+        [
+          43,
+          {
+            "type": "K",
+            "color": "black"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "knights-black",
+      "fen": "8/8/3k4/8/4N3/8/3K4/8 w - - 0 1",
+      "perspective": "black",
+      "note": "knight L-shaped visibility, sparse",
+      "board": {
+        "d2": {
+          "color": "white",
+          "role": "king"
+        },
+        "e4": {
+          "color": "white",
+          "role": "knight"
+        },
+        "d6": {
+          "color": "black",
+          "role": "king"
+        }
+      },
+      "enPassantSquare": null,
+      "visibility_mask": "0x001c1c1c00000000",
+      "visible_pieces": [
+        [
+          43,
+          {
+            "type": "K",
+            "color": "black"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "kings-endgame-white",
+      "fen": "8/8/4k3/8/8/4K3/8/8 w - - 0 1",
+      "perspective": "white",
+      "note": "lone kings \u2014 minimal adjacent visibility",
+      "board": {
+        "e3": {
+          "color": "white",
+          "role": "king"
+        },
+        "e6": {
+          "color": "black",
+          "role": "king"
+        }
+      },
+      "enPassantSquare": null,
+      "visibility_mask": "0x0000000038383800",
+      "visible_pieces": [
+        [
+          20,
+          {
+            "type": "K",
+            "color": "white"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "kings-endgame-black",
+      "fen": "8/8/4k3/8/8/4K3/8/8 w - - 0 1",
+      "perspective": "black",
+      "note": "lone kings \u2014 minimal adjacent visibility",
+      "board": {
+        "e3": {
+          "color": "white",
+          "role": "king"
+        },
+        "e6": {
+          "color": "black",
+          "role": "king"
+        }
+      },
+      "enPassantSquare": null,
+      "visibility_mask": "0x0038383800000000",
+      "visible_pieces": [
+        [
+          44,
+          {
+            "type": "K",
+            "color": "black"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "en-passant-ctx-white",
+      "fen": "rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3",
+      "perspective": "white",
+      "note": "white e5 pawn vs black d5 (ep on d6) \u2014 pawn diagonal sight + ep context",
+      "board": {
+        "a1": {
+          "color": "white",
+          "role": "rook"
+        },
+        "b1": {
+          "color": "white",
+          "role": "knight"
+        },
+        "c1": {
+          "color": "white",
+          "role": "bishop"
+        },
+        "d1": {
+          "color": "white",
+          "role": "queen"
+        },
+        "e1": {
+          "color": "white",
+          "role": "king"
+        },
+        "f1": {
+          "color": "white",
+          "role": "bishop"
+        },
+        "g1": {
+          "color": "white",
+          "role": "knight"
+        },
+        "h1": {
+          "color": "white",
+          "role": "rook"
+        },
+        "a2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "b2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "c2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "d2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "f2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "g2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "h2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "d5": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "e5": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "a7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "b7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "c7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "e7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "f7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "g7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "h7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "a8": {
+          "color": "black",
+          "role": "rook"
+        },
+        "b8": {
+          "color": "black",
+          "role": "knight"
+        },
+        "c8": {
+          "color": "black",
+          "role": "bishop"
+        },
+        "d8": {
+          "color": "black",
+          "role": "queen"
+        },
+        "e8": {
+          "color": "black",
+          "role": "king"
+        },
+        "f8": {
+          "color": "black",
+          "role": "bishop"
+        },
+        "g8": {
+          "color": "black",
+          "role": "knight"
+        },
+        "h8": {
+          "color": "black",
+          "role": "rook"
+        }
+      },
+      "enPassantSquare": "d6",
+      "visibility_mask": "0x0000199aefefffff",
+      "visible_pieces": [
+        [
+          0,
+          {
+            "type": "R",
+            "color": "white"
+          }
+        ],
+        [
+          1,
+          {
+            "type": "N",
+            "color": "white"
+          }
+        ],
+        [
+          2,
+          {
+            "type": "B",
+            "color": "white"
+          }
+        ],
+        [
+          3,
+          {
+            "type": "Q",
+            "color": "white"
+          }
+        ],
+        [
+          4,
+          {
+            "type": "K",
+            "color": "white"
+          }
+        ],
+        [
+          5,
+          {
+            "type": "B",
+            "color": "white"
+          }
+        ],
+        [
+          6,
+          {
+            "type": "N",
+            "color": "white"
+          }
+        ],
+        [
+          7,
+          {
+            "type": "R",
+            "color": "white"
+          }
+        ],
+        [
+          8,
+          {
+            "type": "P",
+            "color": "white"
+          }
+        ],
+        [
+          9,
+          {
+            "type": "P",
+            "color": "white"
+          }
+        ],
+        [
+          10,
+          {
+            "type": "P",
+            "color": "white"
+          }
+        ],
+        [
+          11,
+          {
+            "type": "P",
+            "color": "white"
+          }
+        ],
+        [
+          13,
+          {
+            "type": "P",
+            "color": "white"
+          }
+        ],
+        [
+          14,
+          {
+            "type": "P",
+            "color": "white"
+          }
+        ],
+        [
+          15,
+          {
+            "type": "P",
+            "color": "white"
+          }
+        ],
+        [
+          35,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ],
+        [
+          36,
+          {
+            "type": "P",
+            "color": "white"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "en-passant-ctx-black",
+      "fen": "rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3",
+      "perspective": "black",
+      "note": "white e5 pawn vs black d5 (ep on d6) \u2014 pawn diagonal sight + ep context",
+      "board": {
+        "a1": {
+          "color": "white",
+          "role": "rook"
+        },
+        "b1": {
+          "color": "white",
+          "role": "knight"
+        },
+        "c1": {
+          "color": "white",
+          "role": "bishop"
+        },
+        "d1": {
+          "color": "white",
+          "role": "queen"
+        },
+        "e1": {
+          "color": "white",
+          "role": "king"
+        },
+        "f1": {
+          "color": "white",
+          "role": "bishop"
+        },
+        "g1": {
+          "color": "white",
+          "role": "knight"
+        },
+        "h1": {
+          "color": "white",
+          "role": "rook"
+        },
+        "a2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "b2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "c2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "d2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "f2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "g2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "h2": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "d5": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "e5": {
+          "color": "white",
+          "role": "pawn"
+        },
+        "a7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "b7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "c7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "e7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "f7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "g7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "h7": {
+          "color": "black",
+          "role": "pawn"
+        },
+        "a8": {
+          "color": "black",
+          "role": "rook"
+        },
+        "b8": {
+          "color": "black",
+          "role": "knight"
+        },
+        "c8": {
+          "color": "black",
+          "role": "bishop"
+        },
+        "d8": {
+          "color": "black",
+          "role": "queen"
+        },
+        "e8": {
+          "color": "black",
+          "role": "king"
+        },
+        "f8": {
+          "color": "black",
+          "role": "bishop"
+        },
+        "g8": {
+          "color": "black",
+          "role": "knight"
+        },
+        "h8": {
+          "color": "black",
+          "role": "rook"
+        }
+      },
+      "enPassantSquare": "d6",
+      "visibility_mask": "0xffffffef48800000",
+      "visible_pieces": [
+        [
+          35,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ],
+        [
+          48,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ],
+        [
+          49,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ],
+        [
+          50,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ],
+        [
+          52,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ],
+        [
+          53,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ],
+        [
+          54,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ],
+        [
+          55,
+          {
+            "type": "P",
+            "color": "black"
+          }
+        ],
+        [
+          56,
+          {
+            "type": "R",
+            "color": "black"
+          }
+        ],
+        [
+          57,
+          {
+            "type": "N",
+            "color": "black"
+          }
+        ],
+        [
+          58,
+          {
+            "type": "B",
+            "color": "black"
+          }
+        ],
+        [
+          59,
+          {
+            "type": "Q",
+            "color": "black"
+          }
+        ],
+        [
+          60,
+          {
+            "type": "K",
+            "color": "black"
+          }
+        ],
+        [
+          61,
+          {
+            "type": "B",
+            "color": "black"
+          }
+        ],
+        [
+          62,
+          {
+            "type": "N",
+            "color": "black"
+          }
+        ],
+        [
+          63,
+          {
+            "type": "R",
+            "color": "black"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "kings-adjacent-white",
+      "fen": "8/8/8/3k4/3K4/8/8/8 w - - 0 1",
+      "perspective": "white",
+      "note": "adjacent kings \u2014 mutual king visibility edge",
+      "board": {
+        "d4": {
+          "color": "white",
+          "role": "king"
+        },
+        "d5": {
+          "color": "black",
+          "role": "king"
+        }
+      },
+      "enPassantSquare": null,
+      "visibility_mask": "0x0000001c1c1c0000",
+      "visible_pieces": [
+        [
+          27,
+          {
+            "type": "K",
+            "color": "white"
+          }
+        ],
+        [
+          35,
+          {
+            "type": "K",
+            "color": "black"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "kings-adjacent-black",
+      "fen": "8/8/8/3k4/3K4/8/8/8 w - - 0 1",
+      "perspective": "black",
+      "note": "adjacent kings \u2014 mutual king visibility edge",
+      "board": {
+        "d4": {
+          "color": "white",
+          "role": "king"
+        },
+        "d5": {
+          "color": "black",
+          "role": "king"
+        }
+      },
+      "enPassantSquare": null,
+      "visibility_mask": "0x00001c1c1c000000",
+      "visible_pieces": [
+        [
+          27,
+          {
+            "type": "K",
+            "color": "white"
+          }
+        ],
+        [
+          35,
+          {
+            "type": "K",
+            "color": "black"
+          }
+        ]
+      ]
+    }
+  ]
+}

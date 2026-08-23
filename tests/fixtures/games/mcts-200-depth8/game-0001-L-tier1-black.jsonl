@@ -1,0 +1,10 @@
+{"type": "room-created", "at": 0, "roomId": "bakeoff-0001", "variant": "fog-of-war", "offer": []}
+{"type": "move-played", "at": 1, "roomId": "bakeoff-0001", "color": "white", "move": {"from": "g1", "to": "f3"}, "compute_ms": 32, "thinkTimeMs": 32}
+{"type": "move-played", "at": 2, "roomId": "bakeoff-0001", "color": "black", "move": {"from": "g8", "to": "h6"}, "compute_ms": 38, "thinkTimeMs": 38}
+{"type": "move-played", "at": 3, "roomId": "bakeoff-0001", "color": "white", "move": {"from": "f3", "to": "g5"}, "compute_ms": 39, "thinkTimeMs": 39}
+{"type": "move-played", "at": 4, "roomId": "bakeoff-0001", "color": "black", "move": {"from": "b8", "to": "c6"}, "compute_ms": 40, "thinkTimeMs": 40}
+{"type": "move-played", "at": 5, "roomId": "bakeoff-0001", "color": "white", "move": {"from": "g5", "to": "e4"}, "compute_ms": 74, "thinkTimeMs": 74}
+{"type": "move-played", "at": 6, "roomId": "bakeoff-0001", "color": "black", "move": {"from": "a8", "to": "b8"}, "compute_ms": 44, "thinkTimeMs": 44}
+{"type": "move-played", "at": 7, "roomId": "bakeoff-0001", "color": "white", "move": {"from": "e4", "to": "f6"}, "compute_ms": 76, "thinkTimeMs": 76}
+{"type": "move-played", "at": 8, "roomId": "bakeoff-0001", "color": "black", "move": {"from": "c6", "to": "d4"}, "compute_ms": 40, "thinkTimeMs": 40}
+{"type": "move-played", "at": 9, "roomId": "bakeoff-0001", "color": "white", "move": {"from": "f6", "to": "e8"}, "compute_ms": 1, "thinkTimeMs": 1}

@@ -1,0 +1,23 @@
+{"type": "room-created", "at": 0, "roomId": "bakeoff-0006", "variant": "fog-of-war", "offer": []}
+{"type": "move-played", "at": 1, "roomId": "bakeoff-0006", "color": "white", "move": {"from": "e2", "to": "e3"}, "compute_ms": 0, "thinkTimeMs": 0}
+{"type": "move-played", "at": 2, "roomId": "bakeoff-0006", "color": "black", "move": {"from": "e7", "to": "e6"}, "compute_ms": 3, "thinkTimeMs": 3}
+{"type": "move-played", "at": 3, "roomId": "bakeoff-0006", "color": "white", "move": {"from": "f1", "to": "e2"}, "compute_ms": 3, "thinkTimeMs": 3}
+{"type": "move-played", "at": 4, "roomId": "bakeoff-0006", "color": "black", "move": {"from": "f8", "to": "e7"}, "compute_ms": 40, "thinkTimeMs": 40}
+{"type": "move-played", "at": 5, "roomId": "bakeoff-0006", "color": "white", "move": {"from": "d2", "to": "d3"}, "compute_ms": 45, "thinkTimeMs": 45}
+{"type": "move-played", "at": 6, "roomId": "bakeoff-0006", "color": "black", "move": {"from": "d7", "to": "d6"}, "compute_ms": 45, "thinkTimeMs": 45}
+{"type": "move-played", "at": 7, "roomId": "bakeoff-0006", "color": "white", "move": {"from": "c1", "to": "d2"}, "compute_ms": 47, "thinkTimeMs": 47}
+{"type": "move-played", "at": 8, "roomId": "bakeoff-0006", "color": "black", "move": {"from": "c8", "to": "d7"}, "compute_ms": 45, "thinkTimeMs": 45}
+{"type": "move-played", "at": 9, "roomId": "bakeoff-0006", "color": "white", "move": {"from": "d2", "to": "c3"}, "compute_ms": 545, "thinkTimeMs": 545}
+{"type": "move-played", "at": 10, "roomId": "bakeoff-0006", "color": "black", "move": {"from": "d6", "to": "d5"}, "compute_ms": 555, "thinkTimeMs": 555}
+{"type": "move-played", "at": 11, "roomId": "bakeoff-0006", "color": "white", "move": {"from": "e2", "to": "h5"}, "compute_ms": 623, "thinkTimeMs": 623}
+{"type": "move-played", "at": 12, "roomId": "bakeoff-0006", "color": "black", "move": {"from": "e7", "to": "c5"}, "compute_ms": 157, "thinkTimeMs": 157}
+{"type": "move-played", "at": 13, "roomId": "bakeoff-0006", "color": "white", "move": {"from": "g1", "to": "e2"}, "compute_ms": 48, "thinkTimeMs": 48}
+{"type": "move-played", "at": 14, "roomId": "bakeoff-0006", "color": "black", "move": {"from": "g8", "to": "e7"}, "compute_ms": 29, "thinkTimeMs": 29}
+{"type": "move-played", "at": 15, "roomId": "bakeoff-0006", "color": "white", "move": {"from": "e1", "to": "h1"}, "compute_ms": 48, "thinkTimeMs": 48}
+{"type": "move-played", "at": 16, "roomId": "bakeoff-0006", "color": "black", "move": {"from": "e8", "to": "h8"}, "compute_ms": 43, "thinkTimeMs": 43}
+{"type": "move-played", "at": 17, "roomId": "bakeoff-0006", "color": "white", "move": {"from": "e2", "to": "c1"}, "compute_ms": 512, "thinkTimeMs": 512}
+{"type": "move-played", "at": 18, "roomId": "bakeoff-0006", "color": "black", "move": {"from": "h7", "to": "h6"}, "compute_ms": 486, "thinkTimeMs": 486}
+{"type": "move-played", "at": 19, "roomId": "bakeoff-0006", "color": "white", "move": {"from": "f2", "to": "f4"}, "compute_ms": 622, "thinkTimeMs": 622}
+{"type": "move-played", "at": 20, "roomId": "bakeoff-0006", "color": "black", "move": {"from": "e7", "to": "f5"}, "compute_ms": 533, "thinkTimeMs": 533}
+{"type": "move-played", "at": 21, "roomId": "bakeoff-0006", "color": "white", "move": {"from": "e3", "to": "e4"}, "compute_ms": 419, "thinkTimeMs": 419}
+{"type": "move-played", "at": 22, "roomId": "bakeoff-0006", "color": "black", "move": {"from": "c5", "to": "g1"}, "compute_ms": 26, "thinkTimeMs": 26}

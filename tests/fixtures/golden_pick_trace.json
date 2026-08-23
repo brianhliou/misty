@@ -1,0 +1,144 @@
+{
+  "source_game": "feedback/mirror-fow-eval-seed1/games/game-0007-L-tier1-black.jsonl",
+  "perspective": "white",
+  "seed": 42,
+  "max_ply": 12,
+  "iters": 160,
+  "i_sample": 16,
+  "use_rust_tree": true,
+  "schema_version": 1,
+  "trace": [
+    {
+      "ply": 1,
+      "p_size": 1,
+      "n_roots": 1,
+      "move": "e2e4",
+      "av_hash": "d588e0c90da8ff377f67e918b246bf6e89b212f2bc82add9f0c5c7e8bfb0d91f",
+      "strategy_hash": "9eec9bc2ee201fef5e7253c0bac8845a9a05c0e3f6f096078250cc31e31a4ae6",
+      "av_top3": [
+        [
+          "e2e4",
+          0.03799
+        ],
+        [
+          "d2d4",
+          0.020126
+        ],
+        [
+          "c2c3",
+          0.011482
+        ]
+      ]
+    },
+    {
+      "ply": 3,
+      "p_size": 16,
+      "n_roots": 16,
+      "move": "g1f3",
+      "av_hash": "fe24b14859b3b765a0fb12ccdc2be2885dc09e81ce5088ce904aea1cdd017934",
+      "strategy_hash": "a64539a62fc726cba6b367ff723e6173f2e3c8c86cd60340a6672d07b71fc32a",
+      "av_top3": [
+        [
+          "g1f3",
+          0.059441
+        ],
+        [
+          "d2d4",
+          0.059141
+        ],
+        [
+          "c2c4",
+          0.058513
+        ]
+      ]
+    },
+    {
+      "ply": 5,
+      "p_size": 202,
+      "n_roots": 16,
+      "move": "g1f3",
+      "av_hash": "20e84e496fc63b12500a0934ef244b8c8131ca1dd8aab622e0122770cb6f8abf",
+      "strategy_hash": "8e0e0596e9d7429409c69349b19412933f6adc50e4dfca796e34985a3b0ba6d2",
+      "av_top3": [
+        [
+          "g1f3",
+          0.054343
+        ],
+        [
+          "c2c4",
+          0.053585
+        ],
+        [
+          "d2d4",
+          0.051449
+        ]
+      ]
+    },
+    {
+      "ply": 7,
+      "p_size": 2719,
+      "n_roots": 16,
+      "move": "d3d4",
+      "av_hash": "0dc35a70db8798035fca00cab525c6142a55f682c7186f9925d81b077b041381",
+      "strategy_hash": "71e0edcfe8ce8802cde11c454cf5e2d3ddcfef744fe92d655477c264299ecf9d",
+      "av_top3": [
+        [
+          "d3d4",
+          0.148931
+        ],
+        [
+          "b1c3",
+          0.143354
+        ],
+        [
+          "h2h4",
+          0.142939
+        ]
+      ]
+    },
+    {
+      "ply": 9,
+      "p_size": 26673,
+      "n_roots": 16,
+      "move": "c2c4",
+      "av_hash": "eebd847ba6e77d7fe38635b58c23fa5747e70bd4d5ea1121cfbdb1b7d16c13f6",
+      "strategy_hash": "6dbdaf7a2eb9a095a8ca076eaef68e80a255cf8faaf9403b30f8e3a54633c569",
+      "av_top3": [
+        [
+          "c2c4",
+          0.098635
+        ],
+        [
+          "b1c3",
+          0.086743
+        ],
+        [
+          "d3d4",
+          0.075849
+        ]
+      ]
+    },
+    {
+      "ply": 11,
+      "p_size": 266,
+      "n_roots": 16,
+      "move": "d3d4",
+      "av_hash": "5eafaca54399dc6056fdb7dc706a20026a17b4114798c7e5f923f57765af5f82",
+      "strategy_hash": "45a1b49be2916ce30bcc550bf9d203b090bc604d0d7dcf796582fb52d3978e25",
+      "av_top3": [
+        [
+          "d3d4",
+          0.036869
+        ],
+        [
+          "c2c4",
+          0.032041
+        ],
+        [
+          "a2a3",
+          0.030581
+        ]
+      ]
+    }
+  ]
+}

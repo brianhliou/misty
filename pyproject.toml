@@ -1,0 +1,71 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "misty-chess"
+version = "0.1.0"
+description = "Misty — a fog-of-war (dark) chess engine: exact belief-state enumeration + GT-CFR search with Stockfish leaf evaluation"
+readme = "README.md"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+authors = [{ name = "Brian Liou", email = "brianhliou@gmail.com" }]
+requires-python = ">=3.11"
+dependencies = [
+  "python-chess>=1.999",
+  "numpy>=1.26",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+# The opening book ships inside the package (opening_book.py loads it via
+# Path(__file__).parent / "data"); without this a built wheel omits it and
+# the book silently can't load outside an editable install.
+fow_chess = ["data/*.json"]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8",
+  "pytest-xdist>=3.6",
+  "ruff>=0.6",
+  "maturin>=1.7",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+markers = [
+    "slow: tests that take more than a few seconds (skip with `-m 'not slow'`)",
+]
+filterwarnings = [
+    # python-chess imports asyncio.DefaultEventLoopPolicy at module load; the
+    # deprecation (Python 3.12+) is upstream's to fix and clutters every run.
+    "ignore:.*DefaultEventLoopPolicy.*:DeprecationWarning",
+    # python-chess engine.py asserts asyncio.iscoroutinefunction (deprecated
+    # in 3.14, removal slated 3.16) — also upstream's to fix.
+    "ignore:.*asyncio.iscoroutinefunction.*:DeprecationWarning",
+]
+
+[tool.ruff]
+# Light touch on a research repo: target the engine core + drivers, leave the
+# experiment dirs (lab/, corpora/) and frozen snapshots (engine_versions/)
+# alone. Line length matches the prevailing style in src/.
+line-length = 100
+target-version = "py311"
+src = ["src", "scripts"]
+extend-exclude = ["fow_rust/target"]
+
+[tool.ruff.lint]
+# Start conservative — correctness-adjacent rules that catch agent-introduced
+# breakage (undefined names, unused imports, bad comparisons), not style nits.
+# Widen later once the tree is clean.
+select = ["F", "E9", "B", "PLE", "RUF"]
+ignore = [
+    "B008",    # function call in argument default — common, intentional here
+    "RUF012",  # mutable class attr annotation — noisy on dataclass-style code
+    "RUF001",  # ambiguous unicode in strings — α/β/etc. are intentional in stats output
+    "RUF002",  # ambiguous unicode in docstrings — same
+    "RUF003",  # ambiguous unicode in comments — same
+]

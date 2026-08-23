@@ -1,0 +1,140 @@
+{
+  "source_game": "feedback/mirror-fow-eval-seed1/games/game-0007-L-tier1-black.jsonl",
+  "max_ply": 14,
+  "schema_version": 1,
+  "trace": [
+    {
+      "ply": 0,
+      "P_white_size": 1,
+      "P_black_size": 1,
+      "P_white_hash": "b1791d7fc9ae3d38966568c257ffb3a02cbf8394cdb4805bc70f64fc3c0b6879",
+      "P_black_hash": "b1791d7fc9ae3d38966568c257ffb3a02cbf8394cdb4805bc70f64fc3c0b6879"
+    },
+    {
+      "ply": 1,
+      "mover": "white",
+      "uci": "e2e3",
+      "P_white_size": 1,
+      "P_black_size": 20,
+      "P_white_hash": "568641c6004364db5c3321af46db9daccf7110e48ae2b18895996871a9b713f5",
+      "P_black_hash": "31d4a53e8bdd89d762562ba3790beb23df84ec095b44fa1e5faf1aac296e9d97"
+    },
+    {
+      "ply": 2,
+      "mover": "black",
+      "uci": "e7e6",
+      "P_white_size": 16,
+      "P_black_size": 20,
+      "P_white_hash": "2dc81be2fd85c5f442ea1dc23bcd5237808a9ac9fa4e2b6e2930b0241dafea19",
+      "P_black_hash": "e215f4059be365d255c2ba7c32e1bcc1fe92855398191565130402e50e5c9add"
+    },
+    {
+      "ply": 3,
+      "mover": "white",
+      "uci": "f1e2",
+      "P_white_size": 16,
+      "P_black_size": 204,
+      "P_white_hash": "ae3878da2cc297063d7dc0644e7ca8b774361f940cba0a8d39d79d80c7f931be",
+      "P_black_hash": "cadc67351695767878893e7e01af22c51e1ce9ccf376fb561c333b98835886c3"
+    },
+    {
+      "ply": 4,
+      "mover": "black",
+      "uci": "f8e7",
+      "P_white_size": 202,
+      "P_black_size": 204,
+      "P_white_hash": "e10977708b138ea2551b0ab3b5c59be598c763aea9a9a23c2ee635318d2d09dc",
+      "P_black_hash": "e09e68ac8af35d2f28d525dc4c346700fea56e842daa469d48046a6d014101c9"
+    },
+    {
+      "ply": 5,
+      "mover": "white",
+      "uci": "d2d3",
+      "P_white_size": 168,
+      "P_black_size": 2486,
+      "P_white_hash": "ef52fac96b17acd49d2f51a5513a83e9add851ea268476bc255aecbfb6cbc74b",
+      "P_black_hash": "60409f0d3525ea8a242d58e6f15bb18c1f8427d6188da8bdc16835c12a978030"
+    },
+    {
+      "ply": 6,
+      "mover": "black",
+      "uci": "d7d6",
+      "P_white_size": 2719,
+      "P_black_size": 1456,
+      "P_white_hash": "41cc933ce4361e4bccddc8808fea363bdf3d6dd29c09758eb471c7c4c5a26850",
+      "P_black_hash": "54dacfb1aba2626c366dc08e261ab1e9b76b6887fce5f7dbb241f2c8c8a52b92"
+    },
+    {
+      "ply": 7,
+      "mover": "white",
+      "uci": "c1d2",
+      "P_white_size": 2719,
+      "P_black_size": 21706,
+      "P_white_hash": "5201d5dd87308b20f5556c5cc0acb16e5e783b79fb1ce8e569520eaa2feca77f",
+      "P_black_hash": "9164ca5b602a8ec6705fcdd96c18f086cfb2f22979d632946d7b23570422c509"
+    },
+    {
+      "ply": 8,
+      "mover": "black",
+      "uci": "c8d7",
+      "P_white_size": 26721,
+      "P_black_size": 21706,
+      "P_white_hash": "b7ff8e6dc526666adc2360f10a9fe421daa17f448785971d0a4ee341bfed0a83",
+      "P_black_hash": "762ec0c496b3961555f3de085a9af6c8b02877ecd12079bf97ffe9282e4d54b2"
+    },
+    {
+      "ply": 9,
+      "mover": "white",
+      "uci": "e2f3",
+      "P_white_size": 26721,
+      "P_black_size": 184816,
+      "P_white_hash": "de3991dd3dd67b29a5ab49a733c0039d17eb4b4d40f615289cba4117cf51df94",
+      "P_black_hash": "8ca5c812867afac7c2b298d767b09d26e9ff59b3766a81029945a116769af97d"
+    },
+    {
+      "ply": 10,
+      "mover": "black",
+      "uci": "d7c6",
+      "P_white_size": 1045,
+      "P_black_size": 184816,
+      "P_white_hash": "3fd7e438422c577bf7c93bc8e616b4a20b08f2981c56716f55cd7c7ec73bc517",
+      "P_black_hash": "3848c38711ef9ef0e81b5f679a606fcf90a6da2f612997c5f36df24531d92866"
+    },
+    {
+      "ply": 11,
+      "mover": "white",
+      "uci": "e3e4",
+      "P_white_size": 408,
+      "P_black_size": 446657,
+      "P_white_hash": "4f837a03e33719228c6d27f77f045e7ca569f742a0dbf4794449f19d7e95ecbd",
+      "P_black_hash": "d750a89ca87ffc835e5ca96a12b0ce05e3c94b761adb3889d5ad885e9e61c012"
+    },
+    {
+      "ply": 12,
+      "mover": "black",
+      "uci": "e7f6",
+      "P_white_size": 2023,
+      "P_black_size": 446657,
+      "P_white_hash": "17ae9cc09241d2ce4d123c36b01d9a44ca78fbce1dad6a2da32997d2ba2fcea0",
+      "P_black_hash": "000d60ced5a0fbfe9b2aebfac39cfb6c024f5db953549069da650e6c369799d6"
+    },
+    {
+      "ply": 13,
+      "mover": "white",
+      "uci": "g1e2",
+      "P_white_size": 2023,
+      "P_black_size": 798656,
+      "P_white_hash": "d40562f4fe9de392b00f9082ab50250284321872056b93d651274f0e6d85e1bc",
+      "P_black_hash": "f424d438b91dcc254587750fa3673b1dc9bbe72233341e98b71cdc5f0e2673fd"
+    },
+    {
+      "ply": 14,
+      "mover": "black",
+      "uci": "g8e7",
+      "P_white_size": 16487,
+      "P_black_size": 798656,
+      "P_white_hash": "64307260ea28bd3eed6b3b1b9f1b113ba4da88ea85680b89edeb1c4226060cef",
+      "P_black_hash": "ebfeb462a38bec61dc8ce1a91a8a2a742c038552000254655b6a99af32d0df5d"
+    }
+  ]
+}
