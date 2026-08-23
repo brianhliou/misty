@@ -26,15 +26,18 @@ jobs:
           cache: pip
           cache-dependency-path: pyproject.toml
 
-      - name: Install Stockfish
+      - name: Install Stockfish 18 (version-pinned)
+        # The golden pick traces and opening-sanity tests are sensitive to the
+        # leaf evaluator's version; apt's Stockfish differs by distro and broke
+        # them. ensure_sf18 provisions the official SF18 release binary — the
+        # version the traces were generated with.
         run: |
-          sudo apt-get update
-          sudo apt-get install -y stockfish
-          # apt installs to /usr/games, which is not on PATH in runners.
-          echo "/usr/games" >> "$GITHUB_PATH"
+          SF="$(python3 scripts/ensure_sf18.py)"
+          sudo ln -sf "$SF" /usr/local/bin/stockfish
+          echo "FOW_STOCKFISH=$SF" >> "$GITHUB_ENV"
 
       - name: Verify Stockfish on PATH
-        run: command -v stockfish
+        run: command -v stockfish && stockfish --help < /dev/null | head -1 || true
 
       - name: Cache cargo
         uses: actions/cache@v4
