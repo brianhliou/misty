@@ -333,3 +333,58 @@ def analyze_game_deep(
     finally:
         eng.close()
     return rows
+
+
+def row_to_json(row: PlyRow) -> dict:
+    """JSON-safe dict for one row (grade flattened, cp_loss materialized)."""
+    out: dict = {
+        "ply": row.ply,
+        "color": row.color,
+        "uci": row.uci,
+    }
+    if row.belief_size is not None:
+        out["belief"] = {"size": row.belief_size, "truth_in_p": row.truth_in_p}
+        if row.i_size is not None:
+            out["belief"]["i_size"] = row.i_size
+            out["belief"]["truth_in_i"] = row.truth_in_i
+    if row.grade is not None:
+        out["ground_truth"] = {
+            "sf_before_cp": row.grade.sf_before_cp,
+            "sf_best": row.grade.sf_best_uci,
+            "sf_after_played_cp": row.grade.sf_after_played_cp,
+            "cp_loss": row.grade.cp_loss,
+        }
+    if row.engine_top_uci is not None:
+        out["search"] = {
+            "engine_top": row.engine_top_uci,
+            "top_value": row.engine_top_value,
+            "played_value": row.played_value,
+        }
+    if row.verdict is not None:
+        out["verdict"] = row.verdict
+    return out
+
+
+def aggregate_rows(rows: list[PlyRow], *, mistake_cp: int = DEFAULT_MISTAKE_CP) -> dict:
+    """The error budget for one analyzed seat: where the mistakes came from.
+
+    The single most useful number analysis produces — the belief / sample /
+    decision split says which lever (belief coverage, search throughput, or
+    evaluation) would actually move strength."""
+    own = [r for r in rows if r.belief_size is not None]
+    graded = [r for r in own if r.grade is not None]
+    mistakes = [r for r in graded if r.grade.cp_loss >= mistake_cp]
+    by_verdict: dict[str, int] = {}
+    for r in mistakes:
+        if r.verdict:
+            by_verdict[r.verdict] = by_verdict.get(r.verdict, 0) + 1
+    return {
+        "plies": len(own),
+        "graded": len(graded),
+        "ungradeable": len(own) - len(graded),
+        "mistakes": len(mistakes),
+        "mistake_cp": mistake_cp,
+        "error_budget": by_verdict,
+        "total_cp_loss": sum(r.grade.cp_loss for r in graded),
+        "peak_belief": max((r.belief_size for r in own), default=0),
+    }
