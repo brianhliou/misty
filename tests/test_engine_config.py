@@ -130,3 +130,16 @@ def test_apply_process_flags_does_not_override_explicit_env(isolate_frozen_env, 
 
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-q"]))
+
+
+def test_v1_6_ship_pins():
+    # The shipped v1.6 = v1.5 + the net-hang floor, frozen. A drift in either
+    # fact silently changes what prod serves.
+    from fow_chess.engine_profile import PROFILES, V1_5
+
+    v16 = PROFILES["v1.6"]
+    assert v16.hv_prune_net_floor == 300.0
+    assert v16.name == "v1.6-net-prune"
+    import dataclasses
+
+    assert dataclasses.replace(v16, name=V1_5.name, hv_prune_net_floor=V1_5.hv_prune_net_floor) == V1_5

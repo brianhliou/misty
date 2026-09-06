@@ -18,7 +18,7 @@ touches live state, so full information here is not a redaction concern
 
 Usage:
     python scripts/analyze_job.py --pub game.json [--seat both]
-        [--sf-depth 18] [--iterations 200] [--i-sample 8]
+        [--sf-depth 18] [--iterations 200] [--i-sample 200]
         [--time-budget SECONDS] [--no-search]
     cat game.json | python scripts/analyze_job.py
 """
@@ -27,10 +27,22 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+# Same bootstrap as live_move_worker.py, and for the same reason: the prod
+# container installs dependencies with `pip install --target .../vendor`, which
+# is neither site-packages nor a venv, so nothing is importable until vendor is
+# on sys.path. Inserting only `src` worked everywhere this script had ever run
+# (a local checkout with a .venv) and failed instantly the first time it ran in
+# the container: ModuleNotFoundError: No module named 'chess', 26ms in.
+ROOT = Path(os.environ.get("PYTHON_ENGINE_LAB_ROOT", Path(__file__).resolve().parents[1])).resolve()
+SRC = ROOT / "src"
+VENDOR = ROOT / "vendor"
+for path in (VENDOR, SRC):
+    if path.exists() and str(path) not in sys.path:
+        sys.path.insert(0, str(path))
 
 import chess
 
@@ -44,6 +56,11 @@ from fow_chess.analysis import (
 )
 
 SCHEMA_VERSION = "misty-analysis/1"
+
+# |P| cap, matching the live engine's deployment knob. None would be the exact
+# oracle, which is unbounded: a real human game passes 8 GiB within seconds. With
+# FOW_BOTTOMK_EXPANSION=1 this costs ~0.6 GB per 1M, so 16M is ~10 GB.
+PRODUCTION_P_MAX = 16_000_000
 
 _PROMO = {"queen": "q", "rook": "r", "bishop": "b", "knight": "n"}
 
@@ -102,10 +119,11 @@ def run_job(
     seat: str = "both",
     sf_depth: int = 18,
     iterations: int = 200,
-    i_sample: int = 8,
+    i_sample: int = 200,
     time_budget: float | None = None,
     mistake_cp: int = DEFAULT_MISTAKE_CP,
     search: bool = True,
+    p_max: int | None = PRODUCTION_P_MAX,
 ) -> dict:
     moves = moves_from_publication(pub)
     seats = ["white", "black"] if seat == "both" else [seat]
@@ -118,6 +136,7 @@ def run_job(
         "search": {
             "enabled": search,
             "iterations": iterations,
+            "p_max": p_max,
             "i_sample": i_sample,
             "time_budget_seconds": time_budget,
         },
@@ -134,12 +153,14 @@ def run_job(
                     grader=grader,
                     mistake_cp=mistake_cp,
                     iterations=iterations,
+                    p_max_size=p_max,
                     i_sample_size=i_sample,
                     time_budget_seconds=time_budget,
                 )
             else:
                 rows = analyze_game(
-                    moves, color, grader=grader, mistake_cp=mistake_cp
+                    moves, color, grader=grader, mistake_cp=mistake_cp,
+                    p_max_size=p_max,
                 )
             all_rows.extend(rows)
             result["seats"][s] = {
@@ -158,7 +179,9 @@ def main() -> int:
     ap.add_argument("--seat", choices=("white", "black", "both"), default="both")
     ap.add_argument("--sf-depth", type=int, default=18)
     ap.add_argument("--iterations", type=int, default=200)
-    ap.add_argument("--i-sample", type=int, default=8)
+    ap.add_argument("--i-sample", type=int, default=200)
+    ap.add_argument("--p-max", type=int, default=PRODUCTION_P_MAX,
+                    help="|P| cap; 0 = unbounded exact oracle (NOT safe on real games)")
     ap.add_argument("--time-budget", type=float, default=None)
     ap.add_argument("--mistake-cp", type=int, default=DEFAULT_MISTAKE_CP)
     ap.add_argument("--no-search", action="store_true", help="belief + grading only (no per-ply solve)")
@@ -171,6 +194,7 @@ def main() -> int:
         sf_depth=args.sf_depth,
         iterations=args.iterations,
         i_sample=args.i_sample,
+        p_max=(None if args.p_max == 0 else args.p_max),
         time_budget=args.time_budget,
         mistake_cp=args.mistake_cp,
         search=not args.no_search,

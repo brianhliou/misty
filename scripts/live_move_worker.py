@@ -69,7 +69,9 @@ from fow_chess.engine_protocol import request_from_json
 from fow_chess.protocol_adapter import (
     board_from_request,
     build_perspective_view,
-    feed_transcript_tail,
+    color_from_protocol,
+    move_from_protocol,
+    observation_from_protocol,
     replay_transcript_into_strategy,
 )
 from fow_chess import rust_health
@@ -89,6 +91,42 @@ MIN_PICK_BUDGET_MS = 50
 MIN_STRATEGY_PICK_BUDGET_MS = int(
     os.environ.get("PYTHON_LIVE_MIN_STRATEGY_PICK_BUDGET_MS", "3000")
 )
+# Belief-update (observe) cost projection. The deadline checks between the
+# worker's phases can't save a turn whose belief UPDATE overruns the wall
+# deadline: one opp-move update at |P|~6M ran 20s+ on the prod vCPUs and the
+# server watchdog forfeited the seat while the worker was still inside it
+# (game 12c8ff99, issue #11). Before each observe, project its cost as
+# |P| x a per-world rate learned from this process's own measured updates
+# (EWMA; conservative prior until the first measurement). If the projection
+# cannot finish before the deadline, FAIL CLOSED: raise BeliefUpdateOverBudget
+# instead of serving a move. Deliberately NOT a fallback move — a belief that
+# can't afford its update this turn can't afford it next turn either, so a
+# fallback bot keeps "playing" junk for the rest of the game while looking
+# alive (the fail-open class the 2026-06-27 mandate eliminates). An explicit
+# refusal is visible in the server's logs and forfeits honestly; recovery
+# means making the update affordable (bounded belief, issue #11 layer 3),
+# not masking the overrun. FOW_WORKER_OBS_PROJECTION=0 restores the old
+# grind-into-timeout behavior.
+OBS_PROJECTION = os.environ.get("FOW_WORKER_OBS_PROJECTION", "1") != "0"
+OBS_PROJECTION_MIN_WORLDS = int(
+    os.environ.get("FOW_WORKER_OBS_PROJECTION_MIN_WORLDS", "500000")
+)
+# Response margin: time to build/serialize the guard reply after we stop.
+OBS_GUARD_MARGIN_MS = int(os.environ.get("FOW_WORKER_OBS_GUARD_MARGIN_MS", "600"))
+# us-per-world priors, used only until the first measured update of that mode.
+# The opp-move expansion measured ~0.75us/world wall on a 10-core M-series;
+# prod-class shared vCPUs land ~4-8us (own-move updates ~13x cheaper: filter
+# only, no move fan-out). The EWMA replaces these after one real update.
+_OBS_PRIOR_US_PER_WORLD = {"own": 0.6, "opp": 6.0}
+# Rates measured at |P| below this are dominated by fixed overhead, not the
+# per-world loop, and would inflate the EWMA — skip learning from them.
+_OBS_RATE_MIN_WORLDS = 50_000
+_OBS_RATE_US_PER_WORLD: dict[str, float] = {}
+# Last successful feed's cost breakdown, merged into the persisted per-move
+# diagnostics. Before this, componentMs covered only the SEARCH: the belief
+# update was "the unbudgeted remainder", recoverable only by replay-rig
+# archaeology (game 12c8ff99 took exactly that).
+_LAST_FEED_STATS: dict[str, Any] = {}
 # Stateful-session opt-in for the tier1 path. v2 is always stateful (delta-feed,
 # commit c203304); tier1 historically reset+replayed the full transcript every
 # move, which blows the budget late-game and drops to the deadline-guard. Set
@@ -180,6 +218,10 @@ V2_LIVE_ENGINES = {
     # ★ v1.5 OPENING-BOOK update (2026-06-21): v1.4 profile + curated book (drop redundant
     # Nc3 forces, force ...dxe4 for the move-2 c6 slip). Base-data change, not a profile flag.
     "python-v2-v1.5",
+    # ★ v1.6 SHIPPED (2026-08-23): v1.5 + the catastrophe prune's net-hang floor
+    # (hv_prune_net_floor=300). Fixes the Qxe8/Qxf2 net-hang class (42b652b6,
+    # 12c8ff99). Frozen profile v1.6; prod selection is platform-side.
+    "python-v2-v1.6",
     # Local-only A/B for the human gadget match (2026-06-14): same v2 build path,
     # different engine_profile. Mapped below; default (and v1.0/current) = strongest.
     "python-v2-strongest", "python-v2-faithful",
@@ -204,7 +246,8 @@ _V2_PROFILE_BY_ID = {
     "python-v2-v1.2": "v1.2",          # gadget-on + carryover fix (v1.3-v1.5 supersede; old "SHIPPED" tag was stale)
     "python-v2-v1.3": "v1.3",          # v1.2 + adaptive prune + book
     "python-v2-v1.4": "v1.4",          # v1.3 profile + fog-castle move-gen (base-code fix)
-    "python-v2-v1.5": "v1.5",          # v1.4 profile + curated book (latest tagged; prod selection is platform-side)
+    "python-v2-v1.5": "v1.5",          # v1.4 profile + curated book (superseded by v1.6)
+    "python-v2-v1.6": "v1.6",          # v1.5 + net-hang prune floor (latest tagged; prod selection is platform-side)
     "python-v2-current": "v1.1",       # dev alias -> v1.1 (NOT the latest; v1.5 is newer). "tracks shipped" was stale
     "python-v2-strongest": "v1.0",     # dev alias of v1.0 (gadget-off)
     "python-v2-faithful": "v1.1-rc1",  # v1.1 release candidate (faithful/gadget, local A/B)
@@ -376,7 +419,7 @@ def main() -> int:
                 _debug("request-error", request_started, requestId=request_id, error=str(exc))
                 _emit({"requestId": request_id or "", "ok": False, "error": str(exc)})
                 # Desync hardening: a stateful request can partially advance the
-                # belief (feed_transcript_tail) and then throw, while processed_len
+                # belief (_feed_transcript_budgeted) and then throw, while processed_len
                 # is NOT updated — re-feeding the tail next turn would double-apply
                 # observations and silently corrupt the belief for the rest of the
                 # game. Invalidate the session so the next turn cold-starts (full
@@ -470,20 +513,36 @@ def _build_mini_engine(perspective: str, seed: int, engine_id: str | None = None
     )
 
 
-def _mini_budget_seconds(req: Any, request: dict[str, Any]) -> float | None:
+def _mini_budget_seconds(
+    req: Any, request: dict[str, Any], *, max_seconds: float | None = None
+) -> float | None:
     """Per-move wall budget. Hard-capped by the worker watchdog (a slow move must
     never trip the room timeout) and clock-aware (so the engine can't flag): a
     small fraction of the bank plus most of the increment keeps per-move spend
     below the increment as the bank drains. Returns None only in untimed dev with
-    no watchdog (engine then runs to its iteration cap)."""
+    no watchdog AND no max_seconds (engine then runs to its iteration cap).
+
+    `max_seconds` is an ABSOLUTE per-move ceiling applied on top of the clock
+    formula. The formula is solvency-shaped — it answers "can I afford this?" and
+    has no notion of a response-time target — so at 5+5 it allocates 16-21s.
+    Default None leaves every existing caller byte-identical; in particular the
+    DMX caller, whose bot is human-validated at the current shape.
+
+    The None-return interacts with the iteration cap: a profile whose cap is out
+    of reach (fdx v1.2) would spin forever on the untimed-dev path, so whenever a
+    ceiling is configured it is also the floor-stop for that path."""
     watchdog_ms = _parse_optional_int(request.get("watchdogTimeoutMs"))
     hard_s = max(0.1, (watchdog_ms - DEADLINE_GUARD_MS) / 1000.0) if watchdog_ms else None
     rem = req.clock.remaining_ms
     if rem is None:
-        return min(hard_s, 2.0) if hard_s is not None else hard_s
+        base = min(hard_s, 2.0) if hard_s is not None else hard_s
+        if base is None:
+            return max_seconds
+        return base if max_seconds is None else min(base, max_seconds)
     inc = req.clock.increment_ms or 0
     soft_s = max(0.1, rem / 1000.0 * 0.04 + (inc / 1000.0) * 0.8)
-    return min(hard_s, soft_s) if hard_s is not None else soft_s
+    budget = min(hard_s, soft_s) if hard_s is not None else soft_s
+    return budget if max_seconds is None else min(budget, max_seconds)
 
 
 def _mini_selftest_move(seed: int) -> str:
@@ -685,6 +744,7 @@ _XIANGQI_SESSION: dict[str, Any] = {
 _XIANGQI_PROFILE_BY_ID = {
     "python-fdx-v1.0": "frozen-64x12-20m",
     "python-fdx-v1.1": "guarded-64x32-20m",
+    "python-fdx-v1.2": "guarded-timed-i32-20m",
 }
 
 # Named-profile bundle defaults — the code-legible source of truth (issue #6).
@@ -696,6 +756,8 @@ _XIANGQI_PROFILE_BUNDLES: dict[str, dict[str, Any]] = {
     # Legacy served play-bot: stripped belief (|I|=12), no KLUSS/gadget/veto, and the
     # material-catastrophe stack deferred to env -> byte-identical to prior v1.0.
     "frozen-64x12-20m": {
+        "iterations": 64,
+        "max_budget_s": None,
         "faithful": False,
         "material_guard": None,
         "material_adaptive": None,
@@ -706,6 +768,37 @@ _XIANGQI_PROFILE_BUNDLES: dict[str, dict[str, Any]] = {
     # general veto — baked ON in code, no env required. Human-validated: this config
     # beat the author 3/3 in live PvE (the opening cannon-hang class did not recur).
     "guarded-64x32-20m": {
+        "iterations": 64,
+        "max_budget_s": None,
+        "faithful": True,
+        "material_guard": True,
+        "material_adaptive": True,
+        "material_tau": 0.15,
+    },
+    # v1.2 (2026-09-05): guarded, but TIME-bounded instead of iteration-bounded.
+    #
+    # v1.1 shipped a 64-iteration cap, so the deadline check in
+    # gt_cfr.solve_multiroot_rust_tree was dead code: 64 iterations cost ~150ms
+    # against a 16-21s budget, and the engine returned having spent ~2% of its
+    # allocation. Measured in prod over a full 5+5 game: 33 moves in 24.4s total,
+    # finishing with MORE clock than it started. This is the fdx replay of the
+    # chess lesson at engine_profile.DEFAULT_ITER_CAP (6a8d98a) — "a low cap is
+    # silently reached first and leaves search on the table".
+    #
+    # So the cap goes effectively out of reach and a wall-clock ceiling becomes
+    # the real control. `iterations` costs nothing to raise: it bounds the loop
+    # and the expansion COUNTER (gt_cfr.py:1703/1959) and allocates nothing.
+    #
+    # max_budget_s exists because the clock formula in _mini_budget_seconds is
+    # solvency-shaped, not latency-shaped — it answers "can I afford this?", not
+    # "how long should a blitz reply take?". At 5+5 it allocates 16-21s, which
+    # v1.1 could never spend and v1.2 very much can. 4s keeps the reply humane
+    # while still buying ~30x the v1.1 search. It is inert at genuinely fast
+    # controls (3+2 with 20s banked already budgets 2.4s), so the anti-flag
+    # property of the formula is untouched.
+    "guarded-timed-i32-20m": {
+        "iterations": 10_000_000,
+        "max_budget_s": 4.0,
         "faithful": True,
         "material_guard": True,
         "material_adaptive": True,
@@ -722,6 +815,13 @@ def _xiangqi_profile(engine_id: str | None = None) -> dict[str, Any]:
 
     def _flag(var: str, default_on: bool) -> bool:
         return os.environ.get(var, "1" if default_on else "0") not in ("", "0", "false", "False")
+
+    def _opt_float(var: str, bundle_val: float | None) -> float | None:
+        # env wins; else the profile's pinned value; else None = no ceiling.
+        raw = os.environ.get(var)
+        if raw is not None:
+            return float(raw)
+        return bundle_val
 
     def _tri(var: str, bundle_val: bool | None) -> bool | None:
         # env wins; else the profile's pinned bool; else None = defer to the
@@ -748,7 +848,10 @@ def _xiangqi_profile(engine_id: str | None = None) -> dict[str, Any]:
     return {
         "name": name + suffix,
         "faithful": faithful,
-        "iterations": int(os.environ.get("FOW_XIANGQI_ITERS", "64")),
+        "iterations": int(os.environ.get("FOW_XIANGQI_ITERS", str(bundle["iterations"]))),
+        # None = no absolute ceiling (v1.0/v1.1 prior behavior: the clock formula
+        # alone decides). A float caps the per-move wall budget on top of it.
+        "max_budget_s": _opt_float("FOW_XIANGQI_MAX_BUDGET_S", bundle["max_budget_s"]),
         "i_sample_size": int(os.environ.get("FOW_XIANGQI_I_SAMPLE", "32" if faithful else "12")),
         "max_size": int(os.environ.get("FOW_XIANGQI_P_MAX", "20000000")),
         "pikafish_depth": int(os.environ.get("FOW_XIANGQI_PIKAFISH_DEPTH", "1")),
@@ -954,8 +1057,8 @@ def _handle_xiangqi_request(
         )
         _debug("transcript-replayed", started, mode="delta", transcriptLen=transcript_len)
 
-    budget_s = _mini_budget_seconds(req, request)
     prof = _xiangqi_profile(req.engine_id)
+    budget_s = _mini_budget_seconds(req, request, max_seconds=prof["max_budget_s"])
     _debug(
         "pick-started",
         started,
@@ -1051,27 +1154,46 @@ def _handle_request(
     stateful = engine_id in V2_LIVE_ENGINES or (
         TIER1_STATEFUL_SESSION and not isinstance(strategy, RandomStrategy)
     )
+    _LAST_FEED_STATS.clear()
     if stateful:
         # Feed only the delta unless continuity is broken (different game, or a
         # shorter transcript than we've already processed → not append-only).
+        # Budgeted: raises BeliefUpdateOverBudget (fail closed) when the
+        # projected belief-update cost would blow the wall deadline — see
+        # _feed_transcript_budgeted (issue #11: forfeit while inside the update).
         gid = req.game_id
         if _LIVE_SESSION["game_id"] != gid or transcript_len < _LIVE_SESSION["processed_len"]:
-            replay_transcript_into_strategy(strategy, req)  # cold start (resets)
+            fed_len = _feed_transcript_budgeted(
+                strategy, req, 0, deadline, started, reset=True
+            )
             _LIVE_SESSION["game_id"] = gid
-            _LIVE_SESSION["processed_len"] = transcript_len
-            _debug("transcript-replayed", started, mode="cold", transcriptLen=transcript_len)
+            _LIVE_SESSION["processed_len"] = fed_len
+            _debug("transcript-replayed", started, mode="cold",
+                   transcriptLen=transcript_len, processedLen=fed_len,
+                   beliefWorlds=_belief_worlds(strategy),
+                   obsMs=_LAST_FEED_STATS.get("obsMs"))
         else:
-            feed_transcript_tail(strategy, req, _LIVE_SESSION["processed_len"])
-            _debug("transcript-replayed", started, mode="delta",
-                   fromIdx=_LIVE_SESSION["processed_len"], transcriptLen=transcript_len)
-            _LIVE_SESSION["processed_len"] = transcript_len
+            from_idx = _LIVE_SESSION["processed_len"]
+            fed_len = _feed_transcript_budgeted(
+                strategy, req, from_idx, deadline, started
+            )
+            _LIVE_SESSION["processed_len"] = fed_len
+            _debug("transcript-replayed", started, mode="delta", fromIdx=from_idx,
+                   transcriptLen=transcript_len, processedLen=fed_len,
+                   beliefWorlds=_belief_worlds(strategy),
+                   obsMs=_LAST_FEED_STATS.get("obsMs"))
     else:
         replay_transcript_into_strategy(strategy, req)
         _debug("transcript-replayed", started, transcriptLen=transcript_len)
     if _deadline_expired(deadline):
+        # Reaching here past the deadline means an observe overran its
+        # projection (or projection is off): the caller has likely given up
+        # already — say so loudly instead of leaving forensics to a replay rig.
         guard_board = board_from_request(req)
         move = _deadline_guard_move(guard_board, view)
-        _debug("deadline-guard", started, phaseBefore="pick-started", move=move.uci())
+        _debug("deadline-guard", started, phaseBefore="pick-started", move=move.uci(),
+               deadlineOverrunMs=round((time.monotonic() - deadline) * 1000),
+               beliefWorlds=_belief_worlds(strategy))
         return _move_response(spec, move, req, "deadline-guard")
 
     pick_view, pick_budget_ms = _budgeted_pick_view(view, deadline, _compute_budget_ms(request))
@@ -1115,7 +1237,19 @@ def _handle_request(
     _assert_belief_consistent(strategy, req, started)
     move = strategy.pick_move(engine_pick_view)
     telemetry = _v2_decision_telemetry(strategy)
+    if _LAST_FEED_STATS:
+        # Persist the belief-UPDATE cost next to the search cost: componentMs
+        # covers the pick only, and the update is the phase that actually blew
+        # the deadline in game 12c8ff99.
+        telemetry = {**telemetry, "feed": dict(_LAST_FEED_STATS)}
     _debug("pick-finished", started, move=move.uci(), **telemetry)
+    if deadline is not None and time.monotonic() > deadline:
+        # The move is produced but late: the caller's watchdog has likely fired
+        # and this answer will be discarded (prod symptom: seat-forfeit with a
+        # clean worker log). Loud so a forfeit is diagnosable from stderr alone.
+        _debug("response-late", started, phaseAfter="pick",
+               deadlineOverrunMs=round((time.monotonic() - deadline) * 1000),
+               beliefWorlds=_belief_worlds(strategy))
     if move not in view.own_legal_moves:
         # The engine may have produced a castle in python-chess's king-dest form;
         # remap to the server's king-to-rook-square encoding and re-check.
@@ -1563,6 +1697,124 @@ def _compute_budget_ms(request: dict[str, Any]) -> int | None:
 
 def _deadline_expired(deadline: float | None) -> bool:
     return deadline is not None and time.monotonic() >= deadline
+
+
+class BeliefUpdateOverBudget(RuntimeError):
+    """Projected belief-update cost cannot fit the wall deadline (fail closed).
+
+    Propagates out of the request handler: the main loop emits an ok=False
+    response carrying this message and invalidates the session. The server
+    sees an explicit engine failure at the exact turn with the exact numbers,
+    instead of a mute watchdog timeout — or worse, a fallback move that hides
+    the breakage.
+    """
+
+
+def _belief_worlds(strategy: Any) -> int:
+    """Current |P| for a v2-family strategy; 0 when the strategy has no exact
+    belief (tier1/random), which disables projection and rate learning."""
+    eng = getattr(strategy, "_engine", None)
+    if eng is None:
+        return 0
+    return int(getattr(getattr(eng, "enumerator", None), "size", 0) or 0)
+
+
+def _feed_transcript_budgeted(
+    strategy: Any,
+    req: Any,
+    start_idx: int,
+    deadline: float | None,
+    started: float,
+    *,
+    reset: bool = False,
+) -> int:
+    """Deadline-aware transcript feed (the stateful-session feed path).
+
+    Applies observations from ``start_idx`` and returns the new processed
+    length. Before each one, projects its cost as |P| x the learned per-world
+    rate for its mode and raises BeliefUpdateOverBudget if the projection
+    cannot finish before ``deadline`` minus the response margin — fail closed,
+    see the class docstring and the OBS_PROJECTION comment for why this is
+    not a fallback move.
+
+    Each applied observe at meaningful |P| updates a per-mode EWMA
+    (us-per-world), so the projection tracks this host's actual hardware
+    rather than a hardcoded constant.
+    """
+    if reset:
+        perspective = color_from_protocol(req.color)
+        try:
+            strategy.reset(perspective, game_id=req.game_id)
+        except TypeError:
+            strategy.reset(perspective)
+    transcript = req.observation_transcript or ()
+    processed = start_idx
+    obs_ms_by_mode: dict[str, float] = {}
+    obs_max_worlds = 0
+    obs_applied = 0
+    for obs in transcript[start_idx:]:
+        if obs.kind == "initial":
+            processed += 1
+            continue
+        if obs.kind not in ("own_move", "opp_move"):
+            raise ValueError(f"unknown observation kind: {obs.kind}")
+        mode = "own" if obs.kind == "own_move" else "opp"
+        worlds = _belief_worlds(strategy)
+        if OBS_PROJECTION and deadline is not None and worlds >= OBS_PROJECTION_MIN_WORLDS:
+            rate = _OBS_RATE_US_PER_WORLD.get(mode, _OBS_PRIOR_US_PER_WORLD[mode])
+            projected_s = worlds * rate / 1e6
+            remaining_s = deadline - time.monotonic() - OBS_GUARD_MARGIN_MS / 1000.0
+            if projected_s > remaining_s:
+                _debug(
+                    "obs-projection-refuse",
+                    started,
+                    ply=getattr(obs, "ply", None),
+                    mode=mode,
+                    beliefWorlds=worlds,
+                    projectedMs=round(projected_s * 1000),
+                    remainingMs=round(remaining_s * 1000),
+                    rateUsPerWorld=round(rate, 3),
+                    rateLearned=mode in _OBS_RATE_US_PER_WORLD,
+                    processedLen=processed,
+                    transcriptLen=len(transcript),
+                )
+                raise BeliefUpdateOverBudget(
+                    f"belief update at ply {getattr(obs, 'ply', '?')} projected "
+                    f"{projected_s:.1f}s at |P|={worlds} ({mode}-move, "
+                    f"{rate:.2f}us/world) but only {max(0.0, remaining_s):.1f}s "
+                    "remain before the wall deadline — refusing to serve "
+                    "(fail closed, issue #11)"
+                )
+        internal = observation_from_protocol(obs)
+        t0 = time.monotonic()
+        if obs.kind == "own_move":
+            if obs.own_move is None:
+                raise ValueError(
+                    f"protocol observation at ply {obs.ply} has kind='own_move' "
+                    "but own_move field is missing"
+                )
+            strategy.observe_own_move(move_from_protocol(obs.own_move), internal)
+        else:
+            strategy.observe_opp_move(internal)
+        dt_ms = (time.monotonic() - t0) * 1000.0
+        obs_ms_by_mode[mode] = obs_ms_by_mode.get(mode, 0.0) + dt_ms
+        obs_max_worlds = max(obs_max_worlds, worlds)
+        obs_applied += 1
+        if worlds >= _OBS_RATE_MIN_WORLDS:
+            measured = dt_ms * 1000.0 / worlds
+            prev = _OBS_RATE_US_PER_WORLD.get(mode)
+            _OBS_RATE_US_PER_WORLD[mode] = (
+                measured if prev is None else 0.5 * prev + 0.5 * measured
+            )
+        processed += 1
+    _LAST_FEED_STATS.update(
+        obsMs=round(sum(obs_ms_by_mode.values())),
+        obsMsByMode={k: round(v) for k, v in obs_ms_by_mode.items()},
+        obsPlies=obs_applied,
+        obsMaxWorlds=obs_max_worlds,
+        obsRateUsPerWorld={k: round(v, 3) for k, v in _OBS_RATE_US_PER_WORLD.items()},
+    )
+    return processed
 
 
 def _budgeted_pick_view(

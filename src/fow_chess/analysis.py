@@ -34,6 +34,9 @@ from .p_enum import PEnumerator
 # magnitude as leaf_eval's _MATE_SCORE_CP; the exact value only needs to
 # dominate any real eval).
 MATE_CP = 10_000
+# How many ranked root candidates a deep row keeps. Three matches the
+# flip-variant review contract (jieqi/banqi alternatives block).
+CANDIDATE_SET_SIZE = 3
 
 # Spec decision (2026-06-03): ~300cp is the headline mistake bar — 100cp is
 # blitz/fog noise.
@@ -98,6 +101,14 @@ class PlyRow:
     engine_top_uci: Optional[str] = None
     engine_top_value: Optional[float] = None
     played_value: Optional[float] = None
+    # Ranked candidate SET from the same solve — best first, the played move
+    # marked. Under fog a principal variation is undefined (the move leads to a
+    # distribution over the opponent's real position), so the honest analogue of
+    # an alternatives block is the moves the engine actually scored, not a line.
+    # Free: these values are already in action_values_at_root.
+    candidates: Optional[list[dict]] = None
+    # Rank of the played move over ALL root moves (1 = it was the engine's top).
+    played_rank: Optional[int] = None
 
 
 class TruthGrader:
@@ -126,7 +137,27 @@ class TruthGrader:
             pass
         self._engine = chess.engine.SimpleEngine.popen_uci(self.path)
 
+    @staticmethod
+    def _forced_cp(board: chess.Board, pov: chess.Color) -> Optional[int]:
+        """Score for a position Stockfish must never be asked about.
+
+        A FoW-reachable position can leave the side NOT to move with a
+        capturable king (python-chess ``STATUS_OPPOSITE_CHECK``) — which is how
+        nearly every fog game ends. Stockfish never answers for such a FEN and
+        ``SimpleEngine.analyse`` takes no timeout, so asking blocks the whole
+        job forever (the ``except`` in ``grade`` never fires, because nothing is
+        raised). The position is decided anyway: whoever is to move can take the
+        king next ply, so score it as mate for the side to move and skip the
+        engine entirely.
+        """
+        if board.status() & chess.STATUS_OPPOSITE_CHECK:
+            return MATE_CP if pov == board.turn else -MATE_CP
+        return None
+
     def _eval_cp(self, board: chess.Board, pov: chess.Color) -> tuple[int, Optional[str]]:
+        forced = self._forced_cp(board, pov)
+        if forced is not None:
+            return forced, None
         info = self._engine.analyse(board, chess.engine.Limit(depth=self.depth))
         score = info["score"].pov(pov).score(mate_score=MATE_CP)
         pv = info.get("pv")
@@ -177,6 +208,7 @@ def analyze_game(
     *,
     grader: Optional[TruthGrader] = None,
     mistake_cp: int = DEFAULT_MISTAKE_CP,
+    p_max_size: Optional[int] = None,
 ) -> list[PlyRow]:
     """Replay a finished game and produce per-ply analysis rows for
     ``engine_color`` (the analyzed side — nothing engine-specific yet;
@@ -189,7 +221,20 @@ def analyze_game(
     grade plus a verdict for mistakes at or above ``mistake_cp``.
     """
     board = chess.Board()
-    pen = PEnumerator(engine_color)
+    # Two settings that both had to change before this could run on a real game.
+    #
+    # use_rust_state=True keeps P packed in Rust across plies. The p_enum module
+    # default is False (the set[str] oracle path), and constructing it bare here
+    # made this the ONLY belief replay in the repo that did not opt in — every
+    # other one does (capture_belief_replay.py, and the engine via rules.py,
+    # whose factory defaults it True).
+    #
+    # p_max_size=None is the exact-enumeration oracle (truth is ALWAYS in P) and
+    # is unbounded by construction: on a real human game it passes 8 GiB within
+    # seconds. Callers analysing user games pass production's cap (16M); the
+    # default stays None so the research contract is unchanged for callers who
+    # want the oracle and can afford it.
+    pen = PEnumerator(engine_color, use_rust_state=True, max_size=p_max_size)
     rows: list[PlyRow] = []
 
     for ply, mv in enumerate(moves, start=1):
@@ -239,7 +284,17 @@ def analyze_game_deep(
     grader: Optional[TruthGrader] = None,
     mistake_cp: int = DEFAULT_MISTAKE_CP,
     iterations: int = 200,
-    i_sample_size: int = 8,
+    # |P| cap for the solve's own enumerator. None is the exact-enumeration
+    # oracle and is UNBOUNDED — correct for research, unrunnable on a real game.
+    # Production's live engine gets 16M; callers analysing user games should pass
+    # the same so the belief conditions match what the engine actually plays under.
+    p_max_size: Optional[int] = None,
+    # Belief coverage. 8 was low enough that the analyzer's OWN sample missed the
+    # truth on 20 of 52 plies in the reference game and charged the player a
+    # `sample_error` for it. Offline there is no clock, so sample wide: 200 is the
+    # CANDIDATE profile's size (engine_profile.py) and the documented offline
+    # target. Live play uses 32 under a 5s cap.
+    i_sample_size: int = 200,
     time_budget_seconds: Optional[float] = None,
     seed: int = 7,
     engine_factory=None,
@@ -264,7 +319,7 @@ def analyze_game_deep(
     if engine_factory is None:
         def engine_factory():
             return EngineV2(
-                engine_color, rng=_random.Random(seed), p_max_size=None
+                engine_color, rng=_random.Random(seed), p_max_size=p_max_size
             )
 
     eng = engine_factory()
@@ -307,6 +362,24 @@ def analyze_game_deep(
             top_uci, top_value = (
                 max(av.items(), key=lambda kv: kv[1]) if av else (None, None)
             )
+            ranked = sorted(av.items(), key=lambda kv: kv[1], reverse=True)
+            played_uci = mv.uci()
+            candidates = [
+                {"move": m, "value": v, **({"played": True} if m == played_uci else {})}
+                for m, v in ranked[:CANDIDATE_SET_SIZE]
+            ]
+            # Always show the reviewer what they actually played, even when it
+            # missed the cut — otherwise the page can say "you ranked 7th"
+            # without being able to show the move it is ranking.
+            if played_uci in av and not any(c.get("played") for c in candidates):
+                candidates.append(
+                    {"move": played_uci, "value": av[played_uci], "played": True}
+                )
+            played_rank = (
+                1 + sum(1 for _, v in ranked if v > av[played_uci])
+                if played_uci in av
+                else None
+            )
             grade = grader.grade(prev, mv) if grader is not None else None
             rows.append(
                 PlyRow(
@@ -327,6 +400,8 @@ def analyze_game_deep(
                     engine_top_uci=top_uci,
                     engine_top_value=top_value,
                     played_value=av.get(mv.uci()),
+                    candidates=candidates or None,
+                    played_rank=played_rank,
                 )
             )
             eng.observe_own_move(mv, obs)
@@ -360,6 +435,10 @@ def row_to_json(row: PlyRow) -> dict:
             "top_value": row.engine_top_value,
             "played_value": row.played_value,
         }
+        if row.candidates:
+            out["search"]["candidates"] = row.candidates
+        if row.played_rank is not None:
+            out["search"]["played_rank"] = row.played_rank
     if row.verdict is not None:
         out["verdict"] = row.verdict
     return out

@@ -638,6 +638,15 @@ V1_6_RC1 = dataclasses.replace(
     V1_5, name="v1.6-rc1-net-prune", hv_prune_net_floor=300.0,
 )
 
+#: ★ v1.6 SHIPPED (2026-08-23): the FROZEN release — v1.5 + the net-hang floor,
+#: byte-identical to v1.6-rc1. All gates were green 2026-08-21 (unit tests, 6/6
+#: repro seeds, mined corpus 8/8 with flat controls, 98% divergence study, human
+#: gate game b8054d34: zero fixed-class windows). Ship trigger: the SECOND prod
+#: instance of the fixed class on live v1.5 (12c8ff99 move 30 Qe3xf2, net +400cp,
+#: defended in 233/325 worlds) — Brian cleared the ship 2026-08-23. Post-ship, a
+#: FIXED-CLASS row in lab/engine-loss-ledger.md is a REGRESSION.
+V1_6 = dataclasses.replace(V1_6_RC1, name="v1.6-net-prune")
+
 #: Profiles addressable by name. Versions first (canonical), then dev aliases.
 PROFILES = {
     "v1.0": V1_0,            # frozen — python-v2-v1.0 ("Misty 1.0", historical)
@@ -646,7 +655,8 @@ PROFILES = {
     "v1.3": V1_3,            # v1.2 + prune ON + curated book ON — superseded by v1.4 (castle fix) 2026-06-20
     "v1.4": V1_4,            # CASTLE-INTO-CHECK fix — v1.3 profile + search move-gen sees fog-castles
     "v1.5": V1_5,            # OPENING-BOOK update — v1.4 profile + curated book (drop Nc3 forces, force ...dxe4)
-    "v1.6-rc1": V1_6_RC1,    # release candidate (prune net-hang floor, game 42b652b6 Qxe8) — not shipped
+    "v1.6": V1_6,            # SHIPPED 2026-08-23 — v1.5 + prune net-hang floor (frozen; = v1.6-rc1)
+    "v1.6-rc1": V1_6_RC1,    # release candidate — frozen as v1.6
     "v1.1-rc1": V1_1_RC,     # release candidate (faithful/gadget) — frozen as v1.1
     "v1.1-rc2": V1_1_RC2,    # release candidate (king-safe distillation) — not shipped
     "v1.1-rc3": V1_1_RC3,    # release candidate (adaptive prune) — not shipped
