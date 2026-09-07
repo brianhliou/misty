@@ -3,5 +3,6 @@ __pycache__/
 .pytest_cache/
 fow_rust/target/
 *.egg-info/
+build/
 dist/
 .venv/
