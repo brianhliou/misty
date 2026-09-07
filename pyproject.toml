@@ -4,17 +4,38 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "misty-chess"
-version = "0.1.0"
+version = "0.1.2"
 description = "Misty — a fog-of-war (dark) chess engine: exact belief-state enumeration + GT-CFR search with Stockfish leaf evaluation"
 readme = "README.md"
 license = "GPL-3.0-or-later"
 license-files = ["LICENSE"]
 authors = [{ name = "Brian Liou", email = "brianhliou@gmail.com" }]
 requires-python = ">=3.11"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Rust",
+  "Topic :: Games/Entertainment :: Board Games",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 dependencies = [
   "python-chess>=1.999",
   "numpy>=1.26",
 ]
+
+[project.urls]
+Homepage = "https://mistboard.com/?play=computer&gameSpecId=dark-chess"
+Source = "https://github.com/brianhliou/misty"
+Issues = "https://github.com/brianhliou/misty/issues"
+Changelog = "https://github.com/brianhliou/misty/releases"
+Protocol = "https://github.com/brianhliou/misty/blob/main/docs/protocol/engine-protocol.md"
 
 [tool.setuptools.packages.find]
 where = ["src"]
