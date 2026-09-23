@@ -1,0 +1,40 @@
+# PyPI publish: builds misty-chess and uploads it through PyPI trusted
+# publishing (OIDC), so no API token exists anywhere to lose or leak.
+#
+# Runs only in the public brianhliou/misty repo, which receives this file
+# through scripts/release/export_public.py; the private repo's pyproject is
+# fow-chess, which is never uploaded. PyPI trusts exactly this repo, this
+# filename and the `pypi` environment (configured 2026-09-23); renaming the
+# file or the environment breaks publishing until the PyPI side is edited.
+#
+# Trigger: publishing a GitHub release. workflow_dispatch re-runs a release
+# whose upload failed; PyPI refuses a version it already has, so a re-run
+# can never overwrite one.
+name: publish
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  pypi:
+    if: github.repository == 'brianhliou/misty'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: pypi
+      url: https://pypi.org/project/misty-chess/
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Build the pure-Python wheel and sdist
+        run: uv build --wheel --sdist -o dist/
+
+      - name: Upload to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
