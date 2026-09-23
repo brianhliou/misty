@@ -12,6 +12,7 @@ import chess
 
 from ..observation import Observation
 from .enumerator import PEnumerator
+from .fen import belief_fen
 
 
 def assert_truth_in_P(
@@ -31,7 +32,7 @@ def assert_truth_in_P(
         truth: the actual board state at the current ply.
         context: optional caller-provided string (e.g., "ply 14, white POV").
     """
-    truth_fen = truth.fen()
+    truth_fen = belief_fen(truth)
     if truth_fen in enumerator.positions:
         return
     raise AssertionError(

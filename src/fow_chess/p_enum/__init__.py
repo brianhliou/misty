@@ -19,6 +19,7 @@ implementation is driven against it.
 """
 
 from .enumerator import PEnumerator
+from .fen import belief_fen
 from .invariants import (
     assert_all_consistent_with_observation,
     assert_cardinality_bound,
@@ -30,4 +31,5 @@ __all__ = [
     "assert_all_consistent_with_observation",
     "assert_cardinality_bound",
     "assert_truth_in_P",
+    "belief_fen",
 ]

@@ -6,10 +6,12 @@ This is the strongest correctness gate on the move-application path.
 Catches:
   - Castling-rights edge cases (king-capture clears all rights for the
     captured color; rook capture clears that side's right)
-  - En passant emit-only-if-legal (mirrors python-chess
-    EnPassantMode.LEGAL FEN behavior)
-  - EP-skewered check: capturer pawn vs captured pawn subtraction in
-    legal-EP scan
+  - En passant emit-only-if-a-pawn-can-take (python-chess
+    EnPassantMode.XFEN, NOT its default LEGAL — fog of war chess has no
+    king-safety rule, so an ep capture that leaves the king attacked is
+    an ordinary move and the square must still be recorded; see
+    tests/test_belief_en_passant_in_check.py)
+  - EP-skewered check: capturer pawn vs captured pawn subtraction
   - Halfmove clock reset on pawn move or capture
   - Fullmove increment after black moves
   - Promotion piece placement
@@ -72,15 +74,19 @@ def _load_moves(path: Path) -> list[chess.Move]:
     return moves
 
 
+from fow_chess.p_enum import belief_fen
 from game_corpus import corpus_game_paths
 
 
 def _check_all_pseudo_legal(board: chess.Board, errors: list[str], counters: dict) -> None:
-    fen = board.fen()
+    # belief_fen, not board.fen(): P is keyed by the XFEN en-passant spelling,
+    # and python-chess's default would suppress the ep square on exactly the
+    # positions this variant still lets a pawn capture on.
+    fen = belief_fen(board)
     for mv in board.pseudo_legal_moves:
         py_board = board.copy()
         py_board.push(mv)
-        py_fen = py_board.fen()
+        py_fen = belief_fen(py_board)
         rust_fen = fow_rust.apply_move(
             fen, mv.from_square, mv.to_square, mv.promotion or 0
         )

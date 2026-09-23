@@ -28,7 +28,7 @@ import chess
 import chess.engine
 
 from .observation import observation_from_transition
-from .p_enum import PEnumerator
+from .p_enum import PEnumerator, belief_fen
 
 # Mate scores mapped into centipawns for cp_loss arithmetic (same order of
 # magnitude as leaf_eval's _MATE_SCORE_CP; the exact value only needs to
@@ -249,7 +249,7 @@ def analyze_game(
 
         if mover == engine_color:
             belief_size = pen.size
-            truth_in_p = prev.fen() in pen
+            truth_in_p = belief_fen(prev) in pen
             grade = grader.grade(prev, mv) if grader is not None else None
             verdict = _verdict(
                 grade.cp_loss if grade is not None else None,
@@ -345,7 +345,7 @@ def analyze_game_deep(
                 continue
 
             belief_size = eng.enumerator.size
-            truth_fen = prev.fen()
+            truth_fen = belief_fen(prev)
             truth_in_p = truth_fen in eng.enumerator
 
             eng.choose_move(

@@ -49,6 +49,7 @@ from .cfr.leaf_eval_stockfish import StockfishLeafEval
 from .cfr.purification import PurifiedStrategy, purify_strategy, select_regime
 from .cfr.time_manager import TimeManager
 from .observation import Observation
+from .p_enum import belief_fen
 from .opening_book import (
     load as _load_opening_book,
     observation_event_fingerprint,
@@ -1247,7 +1248,7 @@ class EngineV2:
         # Chess truths are chess.Board; variant boards don't expose .fen(), so
         # the truth-in-I telemetry is chess-only for now.
         if roots and hasattr(roots[0].truth, "fen"):
-            self.last_root_fens = [r.truth.fen() for r in roots]
+            self.last_root_fens = [belief_fen(r.truth) for r in roots]
         else:
             self.last_root_fens = None
         # C.1 fallback's v* term: record OUR-POV root value of this solve for

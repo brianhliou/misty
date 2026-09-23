@@ -10,6 +10,7 @@ from typing import Callable, Iterator, Sequence
 import chess
 
 from ..observation import Observation, consistent_with
+from .fen import belief_fen
 
 _logger = logging.getLogger(__name__)
 
@@ -112,7 +113,7 @@ class PEnumerator:
         # validated. Only meaningful on the rust-state path with a finite cap.
         self._bottomk = bool(os.environ.get("FOW_BOTTOMK_EXPANSION"))
         if self._use_rust_state:
-            self._pstate = _fow_rust.PEnumState([starting_board.fen()])
+            self._pstate = _fow_rust.PEnumState([belief_fen(starting_board)])
             self._positions = None  # not maintained in this mode
             if self._bottomk and max_size is not None and hasattr(
                 self._pstate, "set_bottomk_cap"
@@ -122,7 +123,7 @@ class PEnumerator:
                 self._bottomk = False
         else:
             self._pstate = None
-            self._positions = {starting_board.fen()}
+            self._positions = {belief_fen(starting_board)}
             self._bottomk = False
         self._rng = rng if rng is not None else random.Random()
         # Counter — incremented each time downsampling fires.
@@ -319,7 +320,7 @@ class PEnumerator:
                 if move not in board.pseudo_legal_moves:
                     continue
                 board.push(move)
-                new_positions.add(board.fen())
+                new_positions.add(belief_fen(board))
             self.last_raw_count = len(new_positions)
 
         self.last_pre_cap_count = len(new_positions)
@@ -426,7 +427,7 @@ class PEnumerator:
                     nxt.push(move)
                     if consistent_with(nxt, prev, observation, self.perspective):
                         raw += 1
-                        new_positions.add(nxt.fen())
+                        new_positions.add(belief_fen(nxt))
             self.last_raw_count = raw
 
         self.last_pre_cap_count = len(new_positions)
@@ -482,10 +483,23 @@ class PEnumerator:
     def __len__(self) -> int:
         return self.size
 
-    def __contains__(self, fen: str) -> bool:
+    def __contains__(self, position: "str | chess.Board") -> bool:
+        """Membership in P.
+
+        Pass a ``chess.Board`` where you have one. P is keyed by
+        :func:`~fow_chess.p_enum.fen.belief_fen`, and a raw ``board.fen()``
+        uses python-chess's default en-passant mode, which spells a position
+        differently from P whenever an ep capture exists but is not legal by
+        standard chess rules. That case is ordinary in fog of war chess, where
+        leaving your king attacked is allowed, and it used to make this check
+        answer False for a position that was present. Accepting a Board takes
+        the choice away from the caller.
+        """
+        if isinstance(position, chess.Board):
+            position = belief_fen(position)
         if self._use_rust_state:
-            return fen in self._pstate.all_positions()
-        return fen in self._positions
+            return position in self._pstate.all_positions()
+        return position in self._positions
 
 
 def _canonicalize_castling(move: chess.Move, sample_board: chess.Board) -> chess.Move:

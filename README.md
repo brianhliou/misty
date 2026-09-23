@@ -101,6 +101,15 @@ redacted observations only. The engine never receives hidden opponent
 state, and post-game full-information analysis is a separate request
 type, never a flag on the live one.
 
+## Known limitations
+
+Misty does not yet implement everything in the Obscuro paper, and some of
+what it does implement has measured defects: the belief can lose the true
+board past the enumeration cap, and won endgames can be drawn against a
+bare king. Each gap is an open issue under the
+[strength](https://github.com/brianhliou/misty/issues?q=label%3Astrength)
+label, with the evidence behind it.
+
 ## Development
 
 ```

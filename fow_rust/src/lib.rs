@@ -319,19 +319,28 @@ fn apply_move_to_setup(setup: &Setup, from: Square, to: Square, promo: Option<Ro
         nb.set_piece_at(to, Piece { color: stm, role: placed_role });
     }
 
-    // En passant square: emit only when at least one ep capture is LEGAL
-    // (capturer's king not left in check). Mirrors python-chess's default
-    // `EnPassantMode.LEGAL` behavior in `fen()` — required for FEN-equality
-    // dedup of next-positions.
+    // En passant square: emit when at least one ep capture is PSEUDO-legal,
+    // i.e. an enemy pawn stands beside the pushed pawn. Mirrors python-chess's
+    // `EnPassantMode.XFEN` rather than its default `LEGAL`.
+    //
+    // LEGAL is wrong for this variant. It additionally requires that the
+    // capture not leave the capturer's king in check, and fog of war chess has
+    // no such rule: you may leave your king attacked, and the king is captured
+    // rather than mated, so a "check-ignoring" ep capture is a real move here.
+    // Under LEGAL the ep square is dropped from exactly those positions, and
+    // because ep availability is part of FoW visibility (a pawn that can
+    // capture ep sees the landing square and the pawn it would take), the FEN
+    // round-trip silently changed what the side to move could see. In prod game
+    // e751c6c4 that cost the true board its place in P for the rest of the
+    // game. See tests/test_belief_en_passant_in_check.py.
     next.ep_square = if moving_role == Role::Pawn
         && (from.rank() as i32 - to.rank() as i32).abs() == 2
     {
         let mid_rank = Rank::new(((from.rank() as u32) + (to.rank() as u32)) / 2);
         let ep_cand = Square::from_coords(from.file(), mid_rank);
         let enemy_color = stm.other();
-        // Use the post-push board (`nb`) so the just-pushed pawn at `to` is
-        // present (and gets removed in the ep simulation).
-        if has_legal_ep_capture(nb, enemy_color, ep_cand, to) {
+        // Use the post-push board (`nb`) so the just-pushed pawn at `to` is present.
+        if has_pseudo_legal_ep_capture(nb, enemy_color, to) {
             Some(ep_cand)
         } else {
             None
@@ -372,10 +381,28 @@ fn apply_move_to_setup(setup: &Setup, from: Square, to: Square, promo: Option<Ro
     next
 }
 
+/// Does `capturer` have a pawn positioned to take en passant, ignoring whether
+/// the capture would leave its king attacked? This is python-chess's
+/// `EnPassantMode.XFEN` filter, and it is the right one for fog of war chess,
+/// where leaving your king attacked is legal. `captured_pawn_sq` is the square
+/// of the pawn that just double-pushed.
+fn has_pseudo_legal_ep_capture(
+    board: &ShakBoard,
+    capturer: Color,
+    captured_pawn_sq: Square,
+) -> bool {
+    let pawn_rank = captured_pawn_sq.rank();
+    let capturer_pawns = board.by_piece(capturer.pawn());
+    adjacent_files(captured_pawn_sq.file())
+        .any(|adj| capturer_pawns.contains(Square::from_coords(adj, pawn_rank)))
+}
+
 /// Does at least one en-passant capture exist for `capturer` that doesn't
-/// leave the capturer's king in check? Used to mirror python-chess's
-/// FEN `EnPassantMode.LEGAL` filter — emit ep_square only if a legal ep
-/// capture exists from this position.
+/// leave the capturer's king in check? This mirrors python-chess's
+/// `EnPassantMode.LEGAL` filter. It is NOT used for belief FENs (see
+/// `has_pseudo_legal_ep_capture` and the note at the ep_square assignment);
+/// kept for any caller that genuinely wants standard-chess legality.
+#[allow(dead_code)]
 fn has_legal_ep_capture(
     board: &ShakBoard,
     capturer: Color,
